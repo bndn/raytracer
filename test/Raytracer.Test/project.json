@@ -13,7 +13,7 @@
             "type": "build",
             "version": "1.0.0-*"
         },
-        "Application": "1.0.0",
+        "Raytracer": "1.0.0",
         "Xunit": "2.1.0-*",
         "Xunit.Runner.Dnx": "2.1.0-*",
         "FsUnit.xUnit": "1.4.1"
