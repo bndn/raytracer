@@ -2,6 +2,12 @@
     "version": "0.0.0",
     "description": "",
     "authors": [
+        "Anders Munck Højsgaard <amuh@itu.dk>",
+        "Andreas Bjørn Hassing Nielsen <abhn@itu.dk>",
+        "Kasper Kronborg Isager <kasi@itu.dk>",
+        "Kathrin Solveig Schmid Jonsson <ksoj@itu.dk>",
+        "Markus Thomsen <matho@itu.dk>",
+        "Mathias Grundtvig Andreasen <mgru@itu.dk>"
     ],
     "tags": [
     ],
