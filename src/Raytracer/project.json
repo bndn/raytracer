@@ -15,8 +15,10 @@
     "licenseUrl": "https://github.itu.dk/bndn/raytracer/blob/master/LICENSE.md",
 
     "dependencies": {
-        "Vector": "0.0.0",
-        "Point": "0.0.0",
+        "Light": "",
+        "Point": "",
+        "Shape": "",
+        "Vector": "",
         "FSharp.Dnx": {
             "type": "build",
             "version": "1.0.0-*"
@@ -44,6 +46,8 @@
         "files": [
             "Camera.fsi",
             "Camera.fs",
+            "Scene.fsi",
+            "Scene.fs",
             "Raytracer.fsi",
             "Raytracer.fs"
         ]
