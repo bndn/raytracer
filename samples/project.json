@@ -2,12 +2,8 @@
     "version": "0.0.0",
     "description": "",
     "authors": [
-        "Anders Munck Højsgaard <amuh@itu.dk>",
-        "Andreas Bjørn Hassing Nielsen <abhn@itu.dk>",
-        "Kasper Kronborg Isager <kasi@itu.dk>",
-        "Kathrin Solveig Schmid Jonsson <ksoj@itu.dk>",
-        "Markus Thomsen <matho@itu.dk>",
-        "Mathias Grundtvig Andreasen <mgru@itu.dk>"
+        "Jesper Bengtson <jebe@itu.dk>",
+        "Andreas Bjørn Hassing Nielsen <abhn@itu.dk>"
     ],
     "tags": [
     ],
@@ -15,20 +11,11 @@
     "licenseUrl": "https://github.itu.dk/bndn/raytracer/blob/master/LICENSE.md",
 
     "dependencies": {
+        "Raytracer": "",
         "FSharp.Dnx": {
             "type": "build",
             "version": "1.0.0-*"
-        },
-        "Raytracer": "0.0.0",
-        "Point": "0.0.0",
-        "Vector": "0.0.0",
-        "Xunit": "2.1.0-*",
-        "Xunit.Runner.Dnx": "2.1.0-*",
-        "FsUnit.xUnit": "1.4.1"
-    },
-
-    "commands": {
-        "test": "Xunit.Runner.Dnx"
+        }
     },
 
     "frameworks": {
@@ -46,7 +33,7 @@
     },
     "fsharp": {
         "files": [
-            "CameraTest.fs"
+            "RaytracerSample.fs"
         ]
     }
 }
