@@ -1,6 +1,6 @@
 ﻿module RaytracerSample
 
-open Raytracer.API
+open Raytracer
 open System
 open System.Drawing
 
