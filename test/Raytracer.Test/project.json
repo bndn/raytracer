@@ -19,9 +19,14 @@
             "type": "build",
             "version": "1.0.0-*"
         },
-        "Raytracer": "0.0.0",
-        "Point": "0.0.0",
-        "Vector": "0.0.0",
+        "Color": "",
+        "Light": "",
+        "Material": "",
+        "Point": "",
+        "Raytracer": "",
+        "Shape": "",
+        "Texture": "",
+        "Vector": "",
         "Xunit": "2.1.0-*",
         "Xunit.Runner.Dnx": "2.1.0-*",
         "FsUnit.xUnit": "1.4.1"
@@ -46,7 +51,8 @@
     },
     "fsharp": {
         "files": [
-            "CameraTest.fs"
+            "CameraTest.fs",
+            "SceneTest.fs"
         ]
     }
 }
