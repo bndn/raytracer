@@ -54,6 +54,24 @@ val mkTriangle : a:point -> b:point -> c:point -> material -> shape
 val mkPlane : texture -> shape
 /// Construct an implicit surface.
 /// texture coordinates: {(0,0)}, i.e. has only a single material
+/// The gramar for valid expressions are the following and you will need to create a parser for it
+/// x := string
+/// n := integer
+/// f := float
+/// e := e + e (addition)
+///      e - e (subtraction)
+///      -e    (negation)
+///      e * e (multiplication)
+///      e / e (division)
+///      e^n   (exponent)
+///      e_n   (root)
+///      (e)   (parenthesis)
+///      x     (variable)
+///      n     (integer number)
+///      f     (floating point number)
+///
+/// Note that the expression can contain both floats and integers. The operators bind in the expected order
+/// (note that negation binds the hardest (-x^2) is (-x)^2 and not -(x^2)
 val mkImplicit : string -> baseShape
 /// Load a triangle mesh from a PLY file.
 /// texture coordinates: [0,1] X [0,1]
@@ -65,7 +83,7 @@ val mkHollowCylinder : center : point -> radius : float -> height : float -> tex
 /// texture space: hollow cylinder part is textured like mkHollowCylinder;
 ///                top and bottom disk are textured like mkDisk
 val mkSolidCylinder : center : point -> radius : float -> height : float ->
-                        cylinder: texture -> bottom : texture -> top : texture -> shape
+                      cylinder: texture -> bottom : texture -> top : texture -> shape
 /// construct a disk at point p in the plane parallel
 /// to the x-y plane
 /// texture coordinates: [0,1] X [0,1]
@@ -76,16 +94,19 @@ val mkDisc : p : point -> radius : float -> texture -> shape
 val mkBox : low : point -> high : point -> front : texture -> back : texture ->
             top : texture -> bottom : texture -> left : texture -> right : texture  -> shape
 
-val union : shape -> shape -> shape
+/// union produces the union of s1 and s2 in such a way that all internal edges are deleted.
+val union : s1: shape -> s2 : shape -> shape
 val intersection : shape -> shape -> shape
-val subtraction : shape -> shape -> shape
+/// subtracts s2 from s1 in such a way that s2's texture is maintained in the places where s1 is cut.
+val subtraction : s1 : shape -> s2 : shape -> shape
+/// group works like union, but does not remove internal edges
 val group : shape -> shape -> shape
 
 /// Construct a camera at 'position' pointed at 'lookat'. The 'up' vector describes which way is up.
 /// The viewplane is has dimensions 'unitWidth' and 'unitHeight', has a pixel resolution of 'pixelWidth'
 /// times 'pixelHeight', and is 'distance' units in front of the camera.
 val mkCamera : position : point -> lookat : point -> up : vector -> distance : float ->
-    unitWidth : float -> unitHeight : float -> pixelWidth : int -> pixelHeight : int -> camera
+  unitWidth : float -> unitHeight : float -> pixelWidth : int -> pixelHeight : int -> camera
 
 val mkLight : position : point -> colour : colour -> intensity : float -> light
 
@@ -95,6 +116,8 @@ val mkScene : shapes : shape list -> lights : light list -> ambientLight -> came
 val renderToScreen : scene -> unit
 val renderToFile : scene -> filename : string -> unit
 
+
+/// For rotations all angles are in radians. Note that angles greater than 2*pi and less than zero are possible.
 val rotateX : angle : float -> transformation
 val rotateY : angle : float -> transformation
 val rotateZ : angle : float -> transformation
