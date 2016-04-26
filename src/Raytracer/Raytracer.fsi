@@ -1,22 +1,28 @@
 ﻿module Raytracer
 
-open Vector
-open Point
 open Camera
+open Color
+open Light
+open Material
+open Point
+open Scene
+open Shape
+open Texture
+open Vector
 
 type dummy = unit
 
 type vector = Vector
 type point = Point
-type colour = dummy
-type material = dummy
-type shape = dummy
-type baseShape = dummy
-type texture = dummy
+type colour = Color
+type material = Material
+type shape = Shape
+type baseShape = Shape
+type texture = Texture
 type camera = Camera
-type scene = dummy
-type light = dummy
-type ambientLight = dummy
+type scene = Scene
+type light = Light
+type ambientLight = Light
 type transformation = dummy
 
 val mkVector : x:float -> y:float -> z:float -> vector

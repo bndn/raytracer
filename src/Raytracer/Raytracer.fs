@@ -1,39 +1,50 @@
 ﻿module Raytracer
 
-open Vector
-open Point
 open Camera
+open Color
+open Light
+open Material
+open Point
+open Scene
+open Shape
+open Texture
+open Vector
 
 type dummy = unit
 
 type vector = Vector
 type point = Point
-type colour = dummy
-type material = dummy
-type shape = dummy
-type baseShape = dummy
-type texture = dummy
+type colour = Color
+type material = Material
+type shape = Shape
+type baseShape = Shape
+type texture = Texture
 type camera = Camera
-type scene = dummy
-type light = dummy
-type ambientLight = dummy
+type scene = Scene
+type light = Light
+type ambientLight = Light
 type transformation = dummy
 
-let mkVector (x : float) (y : float) (z : float) : vector = failwith "mkVector not implemented"
-let mkPoint (x : float) (y : float) (z : float) : point = failwith "mkPoint not implemented"
-let fromColor (c : System.Drawing.Color) : colour = failwith "fromColor not implemented"
-let mkColour (r : float) (g : float) (b : float) : colour = failwith "mkColour not implemented"
+let mkVector (x : float) (y : float) (z : float) : vector = Vector.make x y z
+let mkPoint (x : float) (y : float) (z : float) : point = Point.make x y z
+let fromColor (c : System.Drawing.Color) : colour =
+    Color.make (float c.R / 255.) (float c.G / 255.) (float c.B / 255.)
+let mkColour (r : float) (g : float) (b : float) : colour = Color.make r g b
 
-let mkMaterial (c : colour) (r : float) : material = failwith "mkMaterial not implemented"
-let mkTexture (f : float -> float -> material) : texture = failwith "mkTexture not implemented"
-let mkMatTexture (m : material) : texture = failwith "mkMatTexture not implemented"
+let mkMaterial (c : colour) (r : float) : material = Material.make c r
+let mkTexture (f : float -> float -> material) : texture = Texture.make f
+let mkMatTexture (m : material) : texture = Texture.make (fun _ _ -> m)
 
 let mkShape (b : baseShape) (t : texture) : shape = failwith "mkShape not implemented"
-let mkSphere (p : point) (r : float) (m : material) : shape = failwith "mkSphere not implemented"
+let mkSphere (p : point) (r : float) (t : texture) : shape =
+    Shape.mkSphere p r t
 let mkRectangle (corner : point) (width : float) (height : float) (t : texture) : shape
     = failwith "mkRectangle not implemented"
-let mkTriangle (a:point) (b:point) (c:point) (m : material) : shape = failwith "mkTriangle not implemented"
-let mkPlane (m : texture) : shape = failwith "mkPlane not implemented"
+let mkTriangle (a:point) (b:point) (c:point) (m : material) : shape =
+    Shape.mkTriangle a b c m
+let mkPlane (m : texture) : shape =
+    failwith "mkPlane not implemented"
+    //Shape.mkPlane (Point.make 0. 0. 0.) (Vector.make 0. 0. 1.) m
 let mkImplicit (s : string) : baseShape = failwith "mkImplicit not implemented"
 let mkPLY (filename : string) (smooth : bool) : baseShape = failwith "mkPLY not implemented"
 
@@ -52,10 +63,13 @@ let subtraction (s1 : shape) (s2 : shape) : shape = failwith "subtraction not im
 
 let mkCamera (pos : point) (look : point) (up : vector) (zoom : float) (width : float) (height : float) (pwidth : int) (pheight : int) : camera =
     Camera.make pos look up zoom width height pwidth pheight
-let mkLight (p : point) (c : colour) (i : float) : light = failwith "mkLight not implemented"
-let mkAmbientLight (c : colour) (i : float) : ambientLight = failwith "mkAmbientLight not implemented"
+let mkLight (p : point) (c : colour) (i : float) : light =
+    Light.make (Direction.Omni(p)) c i
+let mkAmbientLight (c : colour) (i : float) : ambientLight =
+    Light.make (Direction.Ambient) c i
 
-let mkScene (s : shape list) (l : light list) (a : ambientLight) (c : camera) (m : int) : scene = failwith "mkScene not implemented"
+let mkScene (s : shape list) (l : light list) (a : ambientLight) (c : camera) (m : int) : scene =
+    Scene.make s (a :: l) c m
 let renderToScreen (sc : scene) : unit = failwith "renderToScreen not implemented"
 let renderToFile (sc : scene) (path : string) : unit = failwith "renderToFile not implemented"
 
