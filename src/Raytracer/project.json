@@ -15,9 +15,12 @@
     "licenseUrl": "https://github.itu.dk/bndn/raytracer/blob/master/LICENSE.md",
 
     "dependencies": {
+        "Color": "",
         "Light": "",
+        "Material": "",
         "Point": "",
         "Shape": "",
+        "Texture": "",
         "Vector": "",
         "FSharp.Dnx": {
             "type": "build",
