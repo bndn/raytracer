@@ -8,13 +8,13 @@ let createValidCamera =
     let pos = Point.make 0.0 0.0 4.0
     let lookat = Point.make 0.0 0.0 0.0
     let upvector = Vector.make 0.0 1.0 0.0
-    let distance = 1.0
+    let zoom = 1.0
     let uw = 2.0 // unit width
     let uh = 2.0 // unit height
     let pw = 500 // pixel width
     let ph = 500 // pixel height
 
-    Camera.make pos lookat upvector distance uw uh pw ph
+    Camera.make pos lookat upvector zoom uw uh pw ph
 
 [<Fact>]
 let ``make constructs a camera given a set of valid arguments`` () =
@@ -37,10 +37,10 @@ let ``getUpVector gets the up vector`` () =
     Camera.getUpVector c |> should equal (Vector.make 0.0 1.0 0.0)
 
 [<Fact>]
-let ``getDistance, getUnitWidth and getUnitHeight gets their values`` () =
+let ``getZoom, getUnitWidth and getUnitHeight gets their values`` () =
     let c = createValidCamera
 
-    Camera.getDistance c |> should equal 1.0
+    Camera.getZoom c |> should equal 1.0
     Camera.getUnitWidth c |> should equal 2.0
     Camera.getUnitHeight c |> should equal 2.0
 

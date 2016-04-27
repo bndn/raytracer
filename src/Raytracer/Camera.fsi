@@ -4,7 +4,6 @@ module Camera
 open Point
 open Vector
 
-[<Sealed>]
 type Camera
 
 /// Raised in case of attempting to create a camera that looks at its position.
@@ -23,8 +22,8 @@ val getLookat : Camera -> Point
 /// Get the upvector of a camera.
 val getUpVector : Camera -> Vector
 
-/// Get the distance to the pixelgrid for a camera (zoom).
-val getDistance : Camera -> float
+/// Get the zoom of the camera.
+val getZoom : Camera -> float
 
 /// Get the unitwidth of a camera.
 val getUnitWidth : Camera -> float
@@ -37,3 +36,5 @@ val getPixelWidth : Camera -> int
 
 /// Get the pixelheight of a camera.
 val getPixelHeight : Camera -> int
+
+val getCamera : Camera -> (Point * Point * Vector * float * float * float * int * int)

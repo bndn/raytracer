@@ -16,15 +16,15 @@ exception InvalidCameraException
 /// <param name=p>The position of the camera.</param>
 /// <param name=l>The position of the lookat point.</param>
 /// <param name=u>The upvector of the camera.</param>
-/// <param name=d>The distance to the pixel grid from the camera.</param>
+/// <param name=z>The zoom of the camera (distance from camera to pixel grid).</param>
 /// <param name=uw>The unitwidth of the camera.</param>
 /// <param name=uh>The unitheight of the camera.</param>
 /// <param name=pw>The pixelwidth of the pixelgrid.</param>
 /// <param name=ph>The pixelheight of the pixelgrid.</param>
 /// <returns>The created camera.</returns>
-let make p l u d uw uh pw ph =
+let make p l u z uw uh pw ph =
     if p = l then raise InvalidCameraException
-    C(p, l, u, d, uw, uh, pw, ph)
+    C(p, l, u, z, uw, uh, pw, ph)
 
 let getPosition (C(pos, _, _, _, _, _, _, _)) = pos
 
@@ -32,7 +32,7 @@ let getLookat (C(_, lookat, _, _, _, _, _, _)) = lookat
 
 let getUpVector (C(_, _, up, _, _, _, _, _)) = up
 
-let getDistance (C(_, _, _, distance, _, _, _, _)) = distance
+let getZoom (C(_, _, _, zoom, _, _, _, _)) = zoom
 
 let getUnitWidth (C(_, _, _, _, unitWidth, _, _, _)) = unitWidth
 
@@ -41,3 +41,5 @@ let getUnitHeight (C(_, _, _, _, _, unitHeight, _, _)) = unitHeight
 let getPixelWidth (C(_, _, _, _, _, _, pixelWidth, _)) = pixelWidth
 
 let getPixelHeight (C(_, _, _, _, _, _, _, pixelHeight)) = pixelHeight
+
+let getCamera (C(pos, lookat, up, zoom, unitWidth, unitHeight, pixelWidth, pixelHeight)) = (pos, lookat, up, zoom, unitWidth, unitHeight, pixelWidth, pixelHeight)

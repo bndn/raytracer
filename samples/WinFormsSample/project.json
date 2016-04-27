@@ -1,13 +1,10 @@
 {
     "version": "0.0.0",
-    "description": "",
+    "description": "Windows Forms Sample of the Raytracer project,
+                    renders a plane and a sphere in a windows form.",
     "authors": [
-        "Anders Munck Højsgaard <amuh@itu.dk>",
         "Andreas Bjørn Hassing Nielsen <abhn@itu.dk>",
-        "Kasper Kronborg Isager <kasi@itu.dk>",
-        "Kathrin Solveig Schmid Jonsson <ksoj@itu.dk>",
-        "Markus Thomsen <matho@itu.dk>",
-        "Mathias Grundtvig Andreasen <mgru@itu.dk>"
+        "Kathrin Solveig Schmid Jonsson <ksoj@itu.dk>"
     ],
     "tags": [
     ],
@@ -15,13 +12,9 @@
     "licenseUrl": "https://github.itu.dk/bndn/raytracer/blob/master/LICENSE.md",
 
     "dependencies": {
-        "Color": "",
-        "Light": "",
-        "Material": "",
+        "Raytracer": "",
         "Point": "",
         "Ray": "",
-        "Shape": "",
-        "Texture": "",
         "Vector": "",
         "FSharp.Dnx": {
             "type": "build",
@@ -29,16 +22,17 @@
         }
     },
 
-    "commands": {
-        "run": "run"
-    },
-
     "frameworks": {
         "dnx451": {
             "frameworkAssemblies": {
-                "System.Drawing": ""
+                "System.Drawing": "",
+                "System.Windows.Forms": ""
             }
         }
+    },
+
+    "compilationOptions": {
+        "emitEntryPoint": true
     },
 
     "compiler": {
@@ -48,14 +42,7 @@
     },
     "fsharp": {
         "files": [
-            "Camera.fsi",
-            "Camera.fs",
-            "Scene.fsi",
-            "Scene.fs",
-            "Render.fsi",
-            "Render.fs",
-            "Raytracer.fsi",
-            "Raytracer.fs"
+            "WinFormsSample.fs"
         ]
     }
 }
