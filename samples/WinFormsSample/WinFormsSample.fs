@@ -28,17 +28,27 @@ let scene (pwidth : int) (pheight : int) =
     let zoom = 2.
     let camera = Raytracer.mkCamera cameraOrigin lookat cameraUp zoom 1. 1. pwidth pheight
 
-    let sphereColor = Raytracer.fromColor Color.Red
-    let sphereTexture = Raytracer.mkMatTexture (Raytracer.mkMaterial sphereColor 0.5)
+    let green = Raytracer.fromColor Color.Green
+    let red = Raytracer.fromColor Color.Red
+    let blue = Raytracer.fromColor Color.Blue
+
+    let sphereTexture = Raytracer.mkMatTexture (Raytracer.mkMaterial red 0.5)
     let sphere = Raytracer.mkSphere sphereLoc 1. sphereTexture
 
-    let planeColor = Raytracer.fromColor Color.Green
-    let planeTexture = Raytracer.mkMatTexture (Raytracer.mkMaterial planeColor 0.1)
+
+    let planeTexture =
+        Raytracer.mkTexture (
+            fun u v ->
+                let color =
+                    if u > 0.5 && v > 0.5 then green
+                    elif u > 0.5 || v > 0.5 then red
+                    else blue
+                Raytracer.mkMaterial color 0.5
+            )
     let plane = Raytracer.mkPlane planeTexture
 
     let (a, b, c) = (Raytracer.mkPoint 1. 1. 1.), (Raytracer.mkPoint 1. 2. 1.), (Raytracer.mkPoint 1. 2. 3.)
-    let triangleColor = Raytracer.fromColor Color.Blue
-    let triangleMaterial = Raytracer.mkMaterial triangleColor 0.5
+    let triangleMaterial = Raytracer.mkMaterial blue 0.5
     let triangle = Raytracer.mkTriangle a b c triangleMaterial
 
     let lightColor = Raytracer.fromColor Color.White
