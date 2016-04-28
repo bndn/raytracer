@@ -22,7 +22,7 @@ open Vector
 /// and a list of hitpoints.
 /// </returns>
 let getHitpoints shapes (pixel, ray) = async {
-    return pixel, List.fold (fun acc s -> Shape.hitFunction ray s @ acc) List.empty shapes
+    return pixel, List.fold (fun acc s -> Shape.hitFunction ray s @ acc) [] shapes
 }
 
 /// <summary>
