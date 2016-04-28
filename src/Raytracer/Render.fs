@@ -26,6 +26,86 @@ let getHitpoints shapes (pixel, ray) = async {
     return pixel, List.fold (fun acc s -> Shape.hitFunction ray s @ acc) [] shapes
 }
 
+/// </summary>
+/// Given a list of hitpoints, find the closest one.
+/// </summary>
+let getClosestHitpoint hps =
+    let (fst, hps) = match hps with
+                     | hp :: hps -> (hp, hps)
+                     | _         -> failwith "Expected hitpoints"
+
+    let folder (hpb, db) hp =
+        let d = Shape.getHitDistance hp
+        if d < db then (hp, d) else (hpd, db)
+
+    List.fold folder (fst, Shape.getHitDistance fst) hps
+
+/// <summary>
+/// Given a shadow point and a list of light, construct a list of tuples
+/// containing the lights and the direction vector to the light.
+/// </summary>
+let getLightVectors shp ls =
+    let folder lvs l =
+        (l, Light.getVector shp l) :: lvs
+
+    List.fold folder [] ls
+
+let getShadingColors shp lvs =
+    let folder cls (l, lv) =
+        match lv with
+        // In case of the null vector, we've encountered an ambient light.
+        | Vector.make 0.0 0.0 0.0 -> // Return some color, intensity, and 1 dot product
+        | _                       -> // Return some color, intensity, and n dot product
+
+    List.fold folder [] lvs
+
+/// <summary>
+/// </summary>
+let setColor lights (pixel, hitpoints) =
+    // Get the closest hitpoint and the distance to it.
+    let (ch, chd) = getClosestHitpoint hitpoints
+
+    // Get the camera lookat direction vector.
+    let cld = Vector.normalise (Point.distance camOrigin camLookat)
+
+    // Get the point along the ray the we hit.
+    let hp = Point.move camOrigin (cld * chd)
+
+    // Get the direction of the hit normal.
+    let hnd = Vector.normalise (Shape.getHitNormal ch)
+
+    // Get the point from which we should cast the shadow ray.
+    let shp = Point.move hitPoint (hnd * 0.0001)
+
+    // For each of the lights, get the vectors
+    let lvs = getLightVectors shp lights
+
+    let cls = getShadingColors shp lvs
+
+    let shadowHits =
+        |> List.map (fun lv -> Ray.make shadowPoint lv)
+        |> List.fold (fun acc sr -> (sr, (getHitpoints shapes (pixel, sr))) :: acc) []
+
+    let color =
+        if List.isEmpty hitpoints then (new SolidBrush(Color.Black)) else
+          let (_, _, material) = Shape.getHitpoint closestHitpoint
+          let mColor = Material.getColor material
+          let rec scaleColor =
+              match shadowHits with
+              | [(sr, [])] :: ss ->
+                      let scalefactor = Vector.dotProduct (Ray.getVector sr) (Shape.getHitNormal closestHitpoint)
+                      let scaledColor = Color.scale mColor scalefactor
+                      let R = Color.getR scaledColor
+                      let G = Color.getG scaledColor
+                      let B = Color.getB scaledColor
+
+                      new SolidBrush(Color.FromArgb(int (R * 255.), int (G * 255.), int (B * 255.)))
+              | [(sr, _)] :: ss -> new SolidBrush(Color.FromArgb(int (R * 255.), int (G * 255.), int (B * 255.)))
+
+    let x = pixel % pwidth
+    let y = pixel / pheight
+    g.FillRectangle(color, x, y, 1, 1)
+
 /// <summary>
 /// Render a scene to a Bitmap object.
 /// </summary>
@@ -33,13 +113,9 @@ let getHitpoints shapes (pixel, ray) = async {
 /// <returns>The rendered bitmap of the scene.</returns>
 let render scene =
     let cam = Scene.getCamera scene
-    let (camOrigin, camLookat, camUp, zoom, uwidth, uheight, pwidth, pheight) =
-        Camera.getCamera cam
+    let (camOrigin, camLookat, camUp, zoom, uwidth, uheight, pwidth, pheight) = Camera.getCamera cam
     let shapes = Scene.getShapes scene
-    let lights = Scene.getLights scene // this okay?
-    //let getAmbient =
-    //    match lights with
-    //    |
+    let lights = Scene.getLights scene
     let bitmap = new Bitmap(pwidth, pheight)
 
     // The Graphics object allows us to manipulate the bitmap.
@@ -76,40 +152,7 @@ let render scene =
                         |> Async.Parallel
                         |> Async.RunSynchronously
 
-    // Set the color of the pixel.
-    let setColor (pixel, hitpoints) =
-        let closestHitpoint =
-            List.minBy (fun hp -> Shape.getHitDistance hp) hitpoints
-        let hitPoint =
-            Point.move (camOrigin) (Vector.multScalar (Vector.normalise (Point.distance camOrigin camLookat)) (Shape.getHitDistance closestHitpoint))
-        let shadowPoint =
-            Point.move hitPoint (Vector.multScalar (Vector.normalise (Shape.getHitNormal closestHitpoint)) 0.0001)
-        let shadowHits =
-            List.fold (fun acc l -> (Light.getVector shadowPoint l) :: acc) [] lights
-            |> List.map (fun lv -> Ray.make shadowPoint lv)
-            |> List.fold (fun acc sr -> (sr, (getHitpoints shapes (pixel, sr))) :: acc) []
-
-        let color =
-            if List.isEmpty hitpoints then (new SolidBrush(Color.Black)) else
-              let (_, _, material) = Shape.getHitpoint closestHitpoint
-              let mColor = Material.getColor material
-              let rec scaleColor =
-                  match shadowHits with
-                  | [(sr, [])] :: ss ->
-                          let scalefactor = Vector.dotProduct (Ray.getVector sr) (Shape.getHitNormal closestHitpoint)
-                          let scaledColor = Color.scale mColor scalefactor
-                          let R = Color.getR scaledColor
-                          let G = Color.getG scaledColor
-                          let B = Color.getB scaledColor
-
-                          new SolidBrush(Color.FromArgb(int (R * 255.), int (G * 255.), int (B * 255.)))
-                  | [(sr, _)] :: ss -> new SolidBrush(Color.FromArgb(int (R * 255.), int (G * 255.), int (B * 255.)))
-
-        let x = pixel % pwidth
-        let y = pixel / pheight
-        g.FillRectangle(color, x, y, 1, 1)
-
     // Map the setColor function to the hits sequence. Ignore the output.
-    Seq.map setColor hits |> Seq.iter ignore
+    Seq.map setColor lights hits |> Seq.iter ignore
 
     bitmap
