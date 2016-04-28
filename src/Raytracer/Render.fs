@@ -4,6 +4,7 @@ open System.Drawing
 
 open Camera
 open Color
+open Light
 open Point
 open Ray
 open Scene
@@ -37,7 +38,10 @@ let render scene =
     let (camOrigin, camLookat, camUp, zoom, uwidth, uheight, pwidth, pheight) =
         Camera.getCamera cam
     let shapes = Scene.getShapes scene
-
+    let lights = Scene.getLights scene // this okay?
+    //let getAmbient =
+    //    match lights with
+    //    |
     let bitmap = new Bitmap(pwidth, pheight)
 
     // The Graphics object allows us to manipulate the bitmap.
@@ -76,16 +80,32 @@ let render scene =
 
     // Set the color of the pixel.
     let setColor (pixel, hitpoints) =
+        let closestHitpoint =
+            List.minBy (fun hp -> Shape.getHitDistance hp) hitpoints
+        let hitPoint =
+            Point.move (camOrigin) (Vector.multScalar (Vector.normalise (Point.distance camOrigin camLookat)) (Shape.getHitDistance closestHitpoint))
+        let shadowPoint =
+            Point.move hitPoint (Vector.multScalar (Vector.normalise (Shape.getHitNormal closestHitpoint)) 0.0001)
+        let shadowHits =
+            List.fold (fun acc l -> (Light.getVector shadowPoint l) :: acc) [] lights
+            |> List.map (fun lv -> Ray.make shadowPoint lv)
+            |> List.fold (fun acc sr -> (sr, (getHitpoints shapes (pixel, sr))) :: acc) []
+
         let color =
             if List.isEmpty hitpoints then (new SolidBrush(Color.Black)) else
-            let closestHitpoint =
-                List.minBy (fun hp -> Shape.getHitDistance hp) hitpoints
-            let (distance, normal, material) = Shape.getHitpoint closestHitpoint
-            let matColor = Material.getColor material
-            let R = Color.getR matColor
-            let G = Color.getG matColor
-            let B = Color.getB matColor
-            new SolidBrush(Color.FromArgb(int (R * 255.), int (G * 255.), int (B * 255.)))
+              let (_, _, material) = Shape.getHitpoint closestHitpoint
+              let mColor = Material.getColor material
+              let rec scaleColor =
+                  match shadowHits with
+                  | [(sr, [])] :: ss ->
+                          let scalefactor = Vector.dotProduct (Ray.getVector sr) (Shape.getHitNormal closestHitpoint)
+                          let scaledColor = Color.scale mColor scalefactor
+                          let R = Color.getR scaledColor
+                          let G = Color.getG scaledColor
+                          let B = Color.getB scaledColor
+
+                          new SolidBrush(Color.FromArgb(int (R * 255.), int (G * 255.), int (B * 255.)))
+                  | [(sr, _)] :: ss -> new SolidBrush(Color.FromArgb(int (R * 255.), int (G * 255.), int (B * 255.)))
 
         let x = pixel % pwidth
         let y = pixel / pheight
