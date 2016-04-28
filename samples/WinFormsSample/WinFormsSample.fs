@@ -23,7 +23,7 @@ open Vector
 let scene (pwidth : int) (pheight : int) =
     let sphereLoc = Raytracer.mkPoint 0. 2. 0.
     let lookat = Raytracer.mkPoint 0. 0. 0.
-    let cameraOrigin = Raytracer.mkPoint 6. 0. 0.5
+    let cameraOrigin = Raytracer.mkPoint 20. 0. 0.5
     let cameraUp = Raytracer.mkVector 0. 0. 1.
     let zoom = 2.
     let camera = Raytracer.mkCamera cameraOrigin lookat cameraUp zoom 1. 1. pwidth pheight
@@ -36,10 +36,15 @@ let scene (pwidth : int) (pheight : int) =
     let planeTexture = Raytracer.mkMatTexture (Raytracer.mkMaterial planeColor 0.1)
     let plane = Raytracer.mkPlane planeTexture
 
+    let (a, b, c) = (Raytracer.mkPoint 1. 1. 1.), (Raytracer.mkPoint 1. 2. 1.), (Raytracer.mkPoint 1. 2. 3.)
+    let triangleColor = Raytracer.fromColor Color.Blue
+    let triangleMaterial = Raytracer.mkMaterial triangleColor 0.5
+    let triangle = Raytracer.mkTriangle a b c triangleMaterial
+
     let lightColor = Raytracer.fromColor Color.White
     let ambientLight = Raytracer.mkAmbientLight lightColor 0.1
 
-    let scene = Raytracer.mkScene [sphere; plane] [] ambientLight camera 2
+    let scene = Raytracer.mkScene [triangle;sphere;plane] [] ambientLight camera 2
 
     let pb = new PictureBox()
     do pb.SizeMode      <- PictureBoxSizeMode.AutoSize
