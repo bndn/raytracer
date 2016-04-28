@@ -19,12 +19,10 @@ open Vector
 /// <param name=ray>The ray to check intersection with on the shapes.</param>
 /// <returns>
 /// A tuple pair, containing the pixel that the ray was shot through,
-/// and a flattened list of hitpoints.
+/// and a list of hitpoints.
 /// </returns>
 let getHitpoints shapes (pixel, ray) = async {
-    let hps =
-        List.fold (fun acc s -> (Shape.hitFunction ray s) :: acc) List.empty shapes
-    return pixel, List.concat hps
+    return pixel, List.fold (fun acc s -> Shape.hitFunction ray s @ acc) List.empty shapes
 }
 
 /// <summary>
