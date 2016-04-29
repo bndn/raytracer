@@ -50,6 +50,10 @@ let getLightVectors shp ls =
 
     List.fold folder [] ls
 
+/// <summary>
+/// Given a shadowpoint and its lightvectors we find the color, intensity and
+/// dot product value for each light source.
+/// </summary>
 let getShadingColors shp lvs =
     let folder cls (l, lv) =
         match lv with
@@ -60,6 +64,7 @@ let getShadingColors shp lvs =
     List.fold folder [] lvs
 
 /// <summary>
+///
 /// </summary>
 let setColor lights (pixel, hitpoints) =
     // Get the closest hitpoint and the distance to it.
@@ -68,7 +73,7 @@ let setColor lights (pixel, hitpoints) =
     // Get the camera lookat direction vector.
     let cld = Vector.normalise (Point.distance camOrigin camLookat)
 
-    // Get the point along the ray the we hit.
+    // Get the point along the ray that we hit.
     let hp = Point.move camOrigin (cld * chd)
 
     // Get the direction of the hit normal.
@@ -82,6 +87,7 @@ let setColor lights (pixel, hitpoints) =
 
     let cls = getShadingColors shp lvs
 
+    // Make shadow rays from a shadowPoint to each light source and get hitpoints for each ray
     let shadowHits =
         |> List.map (fun lv -> Ray.make shadowPoint lv)
         |> List.fold (fun acc sr -> (sr, (getHitpoints shapes (pixel, sr))) :: acc) []
