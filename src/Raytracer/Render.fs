@@ -16,15 +16,9 @@ open Vector
 /// which shape was hit, is dropped.
 /// </summary>
 /// <param name=shapes>The shapes to check hitpoints on.</param>
-/// <param name=pixel>The pixel through which the ray was shot.</param>
 /// <param name=ray>The ray to check intersection with on the shapes.</param>
-/// <returns>
-/// A tuple pair, containing the pixel that the ray was shot through,
-/// and a list of hitpoints.
-/// </returns>
-let getHitpoints shapes (pixel, ray) = async {
-    return pixel, List.fold (fun acc s -> Shape.hitFunction ray s @ acc) [] shapes
-}
+/// <returns>The list of hit points.</returns>
+let getHitpoints shapes ray = List.fold (fun acc s -> Shape.hitFunction ray s @ acc) [] shapes
 
 /// </summary>
 /// Given a list of hitpoints, find the closest one.
@@ -143,18 +137,24 @@ let render scene =
     // Move to top left
     let p' = Point.move p' ((-uwidth / 2.) * r)
 
-    let gridRays =
-        seq { for i in 0..((pwidth * pheight) - 1) ->
-                let currentRow = i / pheight
-                // Move the point to work with to the right by i amount
-                let p'' = Point.move p' ((W * ((float (i % pwidth)) + 0.5)) * r)
-                // Move the point down onto the current row
-                let p'' = Point.move p'' ((H * ((float currentRow) + 0.5)) * d)
+    let gridRays = seq {
+        for p in 0..((pwidth * pheight) - 1) ->
+            let currentRow = p / pheight
 
-                (i, Ray.make camOrigin (Point.distance camOrigin p'')) }
+            // Move the point to work with to the right by i amount
+            let p'' = Point.move p' ((W * ((float (p % pwidth)) + 0.5)) * r)
+            // Move the point down onto the current row
+            let p'' = Point.move p'' ((H * ((float currentRow) + 0.5)) * d)
+
+            (p, Ray.make camOrigin (Point.distance camOrigin p''))
+    }
+
+    let mapper ss (p, r) = async {
+        return p, getHitpoints ss r
+    }
 
     // Map the async task to the gridRays sequence in parallel and wait for it.
-    let hits = gridRays |> Seq.map (getHitpoints shapes)
+    let hits = gridRays |> Seq.map (mapper shapes)
                         |> Async.Parallel
                         |> Async.RunSynchronously
 
