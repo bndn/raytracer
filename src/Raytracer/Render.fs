@@ -66,7 +66,7 @@ let getShadingColors ss hp shp lvs =
 
             // Check if the ray hit any shapes on its way to the light source.
             match getHitpoints ss r with
-            | [] -> printfn "Computing normal"; (c, i, lv * Shape.getHitNormal hp) :: cls
+            | [] -> (c, i, lv * Shape.getHitNormal hp) :: cls
             | _  -> (c, i, 0.) :: cls
 
     List.fold folder [] lvs
@@ -113,7 +113,7 @@ let setColor ss ls (g:Graphics) c (p, hps) =
         let hnd = Vector.normalise (Shape.getHitNormal chp)
 
         // Get the point from which we should cast the shadow ray.
-        let shp = Point.move hp (0.0001 * hnd)
+        let shp = Point.move hp (-0.0001 * hnd)
 
         // For each of the lights, get the vectors
         let lvs = getLightVectors shp ls
