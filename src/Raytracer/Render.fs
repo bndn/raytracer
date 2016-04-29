@@ -64,9 +64,11 @@ let getShadingColors ss hp shp lvs =
             // Construct a ray from the shadow point in the direction of the light.
             let r = Ray.make shp lv
 
+            let dp = max 0. (lv * Shape.getHitNormal hp)
+
             // Check if the ray hit any shapes on its way to the light source.
             match getHitpoints ss r with
-            | [] -> (c, i, lv * Shape.getHitNormal hp) :: cls
+            | [] -> (c, i, dp) :: cls
             | _  -> (c, i, 0.) :: cls
 
     List.fold folder [] lvs
@@ -113,7 +115,7 @@ let setColor ss ls (g:Graphics) c (p, hps) =
         let hnd = Vector.normalise (Shape.getHitNormal chp)
 
         // Get the point from which we should cast the shadow ray.
-        let shp = Point.move hp (-0.0001 * hnd)
+        let shp = Point.move hp (0.0001 * hnd)
 
         // For each of the lights, get the vectors
         let lvs = getLightVectors shp ls
@@ -129,9 +131,9 @@ let setColor ss ls (g:Graphics) c (p, hps) =
 
         let (r', g', b') = mixShadingColors mc cls
 
-        let r' = min 255. (r' * 255.)
-        let g' = min 255. (g' * 255.)
-        let b' = min 255. (b' * 255.)
+        let r' = max 0. (min 255. (r' * 255.))
+        let g' = max 0. (min 255. (g' * 255.))
+        let b' = max 0. (min 255. (b' * 255.))
 
         let c = new SolidBrush(Color.FromArgb(int r', int g', int b'))
 
