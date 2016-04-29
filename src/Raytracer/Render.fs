@@ -51,7 +51,7 @@ let getLightVectors shp ls =
 /// <param name=chp>The point that was hit.</param>
 /// <param name=shp>The shadow origin point.</param>
 /// <param name=lv>The light vector.</param>
-let getShadingColors ss chp shp lvs =
+let getShadingColors ss hp shp lvs =
     let folder cls (l, lv) =
         let c = Light.getColor l
         let i = Light.getIntensity l
@@ -66,10 +66,30 @@ let getShadingColors ss chp shp lvs =
 
             // Check if the ray hit any shapes on its way to the light source.
             match getHitpoints ss r with
-            | [] -> (c, i, lv * Shape.getHitNormal chp) :: cls
+            | [] -> printfn "Computing normal"; (c, i, lv * Shape.getHitNormal hp) :: cls
             | _  -> (c, i, 0.) :: cls
 
     List.fold folder [] lvs
+
+/// <summary>
+/// </summary>
+let mixShadingColors cl cls =
+    let r = Color.getR cl
+    let g = Color.getG cl
+    let b = Color.getB cl
+
+    let folder (r, g, b) (cl', i, dp) =
+        let r' = Color.getR cl'
+        let g' = Color.getG cl'
+        let b' = Color.getB cl'
+
+        let f = dp * i
+
+        (r + (r' * f), g + (g' * f), b + (b' * f))
+
+    let (rf, gf, bf) = List.fold folder (0., 0., 0.) cls
+
+    (r * rf, g * gf, b * bf)
 
 /// <summary>
 ///
@@ -101,20 +121,26 @@ let setColor ss ls (g:Graphics) c (p, hps) =
         // Get the colors that the pixel should be shaded by.
         let cls = getShadingColors ss chp shp lvs
 
-        let c = new SolidBrush(Color.FromArgb(255, 255, 255))
+        // Get the material that the ray hit.
+        let hm = Shape.getHitMaterial chp
 
-        let x = p % pw
-        let y = p / ph
+        // Get the color of the material that the ray hit.
+        let mc = Material.getColor hm
 
-        g.FillRectangle(c, x, y, 1, 1)
+        let (r', g', b') = mixShadingColors mc cls
+
+        let r' = min 255. (r' * 255.)
+        let g' = min 255. (g' * 255.)
+        let b' = min 255. (b' * 255.)
+
+        let c = new SolidBrush(Color.FromArgb(int r', int g', int b'))
+
+        g.FillRectangle(c, p % pw, p / ph, 1, 1)
 
     | None ->
         let c = new SolidBrush(Color.FromArgb(0, 0, 0))
 
-        let x = p % pw
-        let y = p / ph
-
-        g.FillRectangle(c, x, y, 1, 1)
+        g.FillRectangle(c, p % pw, p / ph, 1, 1)
 
 /// <summary>
 /// Render a scene to a Bitmap object.
