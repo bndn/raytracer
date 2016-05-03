@@ -21,10 +21,10 @@ open Vector
 
 // Creates the scene containing a 3-dimensional sphere.
 let scene (pwidth : int) (pheight : int) =
-    let sphereLoc = Raytracer.mkPoint 0. 2. 0.
-    let lookat = Raytracer.mkPoint 0. 0. 0.
-    let cameraOrigin = Raytracer.mkPoint 20. 0. 2.5
-    let cameraUp = Raytracer.mkVector 0. 0. 1.
+    let sphereLoc = Raytracer.mkPoint 1. 2. 0.
+    let lookat = Raytracer.mkPoint 0. 0.5 0.
+    let cameraOrigin = Raytracer.mkPoint 0. 2.5 10.
+    let cameraUp = Raytracer.mkVector 0. 1. 0.
     let zoom = 2.
     let camera = Raytracer.mkCamera cameraOrigin lookat cameraUp zoom 1. 1. pwidth pheight
 
@@ -44,7 +44,7 @@ let scene (pwidth : int) (pheight : int) =
                     else red
                 Raytracer.mkMaterial color 0.5
             )
-    let sphere = Raytracer.mkSphere sphereLoc 1. sphereTexture
+    let sphere = Raytracer.mkSphere sphereLoc 0.5 sphereTexture
 
     let planeTexture =
         Raytracer.mkTexture (
