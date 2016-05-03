@@ -23,7 +23,7 @@ open Vector
 let scene (pwidth : int) (pheight : int) =
     let sphereLoc = Raytracer.mkPoint 0. 2. 0.
     let lookat = Raytracer.mkPoint 0. 0. 0.
-    let cameraOrigin = Raytracer.mkPoint 20. 0. 0.5
+    let cameraOrigin = Raytracer.mkPoint 20. 0. 2.5
     let cameraUp = Raytracer.mkVector 0. 0. 1.
     let zoom = 2.
     let camera = Raytracer.mkCamera cameraOrigin lookat cameraUp zoom 1. 1. pwidth pheight
@@ -31,10 +31,21 @@ let scene (pwidth : int) (pheight : int) =
     let green = Raytracer.fromColor Color.Green
     let red = Raytracer.fromColor Color.Red
     let blue = Raytracer.fromColor Color.Blue
+    let white = Raytracer.fromColor Color.White
+    let black = Raytracer.fromColor Color.Black
 
-    let sphereTexture = Raytracer.mkMatTexture (Raytracer.mkMaterial red 0.5)
+    let sphereTexture =
+        Raytracer.mkTexture (
+            fun u v ->
+                let color =
+                    printf "u: %A, v: %A\n" u v
+                    if u < 0.5 then white
+                    elif v > 0.5 then red
+                    elif v < 0.5 then white
+                    else red
+                Raytracer.mkMaterial color 0.5
+            )
     let sphere = Raytracer.mkSphere sphereLoc 1. sphereTexture
-
 
     let planeTexture =
         Raytracer.mkTexture (

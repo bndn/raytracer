@@ -43,7 +43,7 @@ let mkRectangle (corner : point) (width : float) (height : float) (t : texture) 
 let mkTriangle (a:point) (b:point) (c:point) (m : material) : shape =
     Shape.mkTriangle a b c m
 let mkPlane (m : texture) : shape =
-    Shape.mkPlane (Point.make 0. 0. 0.) (Vector.make 0. 0. -1.) m
+    Shape.mkPlane (Point.make 0. 0. 0.) (Vector.make 0. 0. 1.) m
 let mkImplicit (s : string) : baseShape = failwith "mkImplicit not implemented"
 let mkPLY (filename : string) (smooth : bool) : baseShape = failwith "mkPLY not implemented"
 
