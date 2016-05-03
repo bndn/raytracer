@@ -38,7 +38,6 @@ let scene (pwidth : int) (pheight : int) =
         Raytracer.mkTexture (
             fun u v ->
                 let color =
-                    printf "u: %A, v: %A\n" u v
                     if u < 0.5 then white
                     elif v > 0.5 then red
                     elif v < 0.5 then white
