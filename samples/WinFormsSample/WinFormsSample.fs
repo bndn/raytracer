@@ -21,9 +21,9 @@ open Vector
 
 // Creates the scene containing a 3-dimensional sphere.
 let scene (pwidth : int) (pheight : int) =
-    let sphereLoc = Raytracer.mkPoint 1. 2. 0.
-    let lookat = Raytracer.mkPoint 0. 0.5 0.
-    let cameraOrigin = Raytracer.mkPoint 0. 2.5 10.
+    let sphereLoc = Raytracer.mkPoint 0. 0.8 0.
+    let lookat = Raytracer.mkPoint 0. 0. 0.
+    let cameraOrigin = Raytracer.mkPoint 0. 2. -10.
     let cameraUp = Raytracer.mkVector 0. 1. 0.
     let zoom = 2.
     let camera = Raytracer.mkCamera cameraOrigin lookat cameraUp zoom 1. 1. pwidth pheight
@@ -37,23 +37,14 @@ let scene (pwidth : int) (pheight : int) =
     let sphereTexture =
         Raytracer.mkTexture (
             fun u v ->
-                let color =
-                    if u < 0.5 then white
-                    elif v > 0.5 then red
-                    elif v < 0.5 then white
-                    else red
-                Raytracer.mkMaterial color 0.5
+                Raytracer.mkMaterial red 0.5
             )
     let sphere = Raytracer.mkSphere sphereLoc 0.5 sphereTexture
 
     let planeTexture =
         Raytracer.mkTexture (
             fun u v ->
-                let color =
-                    if u > 0.5 && v > 0.5 then green
-                    elif u > 0.5 || v > 0.5 then red
-                    else blue
-                Raytracer.mkMaterial color 0.5
+                Raytracer.mkMaterial blue 0.5
             )
     let plane = Raytracer.mkPlane planeTexture
 
@@ -62,9 +53,15 @@ let scene (pwidth : int) (pheight : int) =
     let triangle = Raytracer.mkTriangle a b c triangleMaterial
 
     let lightColor = Raytracer.fromColor Color.White
-    let ambientLight = Raytracer.mkAmbientLight lightColor 0.1
+    let lightColor2 = Raytracer.fromColor Color.Red
+    let ambientLight = Raytracer.mkAmbientLight lightColor 0.5
+    let light = Raytracer.mkLight (Raytracer.mkPoint -1. 1. -2.) lightColor 0.95
 
-    let scene = Raytracer.mkScene [triangle;sphere;plane] [] ambientLight camera 2
+    let discCenter = Point.make 0.5 0.1 0.2
+    let discMaterial = Raytracer.mkMaterial green 0.5
+    let disc = Raytracer.mkDisc discCenter 0.75 (Raytracer.mkMatTexture discMaterial)
+
+    let scene = Raytracer.mkScene [sphere;plane;disc] [light] ambientLight camera 2
 
     let pb = new PictureBox()
     do pb.SizeMode      <- PictureBoxSizeMode.AutoSize

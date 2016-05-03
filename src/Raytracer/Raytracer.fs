@@ -50,7 +50,8 @@ let mkPLY (filename : string) (smooth : bool) : baseShape = failwith "mkPLY not 
 let mkHollowCylinder (c : point) (r : float) (h : float) (t : texture) : shape = failwith "mkHollowCylinder not implemented"
 let mkSolidCylinder (c : point) (r : float) (h : float) (t : texture) (top : texture) (bottom : texture) : shape
     = failwith "mkSolidCylinder not implemented"
-let mkDisc (c : point) (r : float) (t : texture) : shape = failwith "mkDisc not implemented"
+let mkDisc (c : point) (r : float) (t : texture) : shape =
+    Shape.mkDisc c (Vector.make 0. 1. 0.) r t
 let mkBox (low : point) (high : point) (front : texture) (back : texture) (top : texture) (bottom : texture) (left : texture) (right : texture) : shape
     = failwith "mkBox not implemented"
 
