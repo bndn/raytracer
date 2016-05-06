@@ -10,19 +10,11 @@ open Ray
 open Scene
 open Vector
 
-/// <summary>
-/// Get the hitpoints, for each shape, for each pixel and ray pair.
-/// Flattens the hitpoints list such that information regarding
-/// which shape was hit, is dropped.
 /// </summary>
-/// <param name=shapes>The shapes to check hitpoints on.</param>
-/// <param name=ray>The ray to check intersection with on the shapes.</param>
-/// <returns>The list of hit points.</returns>
-let getHitpoints shapes ray = List.fold (fun acc s -> Shape.hitFunction ray s @ acc) [] shapes
-
+/// Given a list of hitpoints, the closest one is found.
 /// </summary>
-/// Given a list of hitpoints, find the closest one.
-/// </summary>
+/// <param name=hitpoints>The list of hitpoints.</param>
+/// <returns>The hitpoint with the closest hit distance.</returns>
 let getClosestHitpoint = function
     | hp :: hps ->
         let folder (hpb, db) hp =
@@ -33,9 +25,29 @@ let getClosestHitpoint = function
     | _ -> None
 
 /// <summary>
+/// Get the hitpoints, for each shape, for each pixel and ray pair.
+/// </summary>
+/// <param name=ss>The shapes to check hitpoints on.</param>
+/// <param name=r>The ray to check intersection with on the shapes.</param>
+/// <param name=md>The maximum distance to check for hitpoints.</param>
+/// <returns>The list of hit points.</returns>
+let getHitpoints ss r md =
+    let folder hps s =
+        let hits = Shape.hitFunction r s
+
+        match getClosestHitpoint hits with
+        | Some (chp, chd) -> if chd <= md then hits @ hps else hps
+        | None -> hps
+
+    List.fold folder [] ss
+
+/// <summary>
 /// Given a shadow point and a list of light, construct a list of tuples
 /// containing the lights and the direction vector to the light.
 /// </summary>
+/// <param name=shp>The shadow origin point from which light vectors are created.</param>
+/// <param name=ls>The list of lights to create light vectors for.</param>
+/// <returns>A list of lightvectors from one shadow origin point to each light source in the scene.</returns>
 let getLightVectors shp ls =
     let folder lvs l =
         (l, Light.getVector shp l) :: lvs
@@ -47,71 +59,80 @@ let getLightVectors shp ls =
 /// dot product value for each light source.
 /// </summary>
 /// <param name=ss>The shapes in the scene.</param>
-/// <param name=p>The pixel to shade.</param>
 /// <param name=chp>The point that was hit.</param>
 /// <param name=shp>The shadow origin point.</param>
-/// <param name=lv>The light vector.</param>
-let getShadingColors ss hp shp lvs =
+/// <param name=lvs>The light vectors for the given shadow origin point.</param>
+/// <returns>A list of triples (one triple for each light source) containing values for color mixing.</returns>
+let getShadingColors ss chp shp lvs =
     let folder cls (l, lv) =
         let c = Light.getColor l
         let i = Light.getIntensity l
 
         match lv with
-        // In case of the null vector, we've encountered an ambient light. The
-        // dot product of ambient lights will always be 1.
+        // In case of the null vector, we've encountered an ambient light.
+        // The dot product of ambient lights will always be 1.
         | v when v = Vector.make 0. 0. 0. -> (c, i, 1.) :: cls
         | _ ->
             // Construct a ray from the shadow point in the direction of the light.
             let r = Ray.make shp lv
 
-            let dp = max 0. (lv * Shape.getHitNormal hp)
+            let hn = Shape.getHitNormal chp
+            let dp = max 0. (Vector.normalise lv * hn)
+
+            // Gets the magnitude of the light vector to use as maxDistance
+            // for getting hitpoints.
+            let lvd = Vector.magnitude lv
 
             // Check if the ray hit any shapes on its way to the light source.
-            match getHitpoints ss r with
+            match getHitpoints ss r lvd with
             | [] -> (c, i, dp) :: cls
             | _  -> (c, i, 0.) :: cls
 
     List.fold folder [] lvs
 
 /// <summary>
+/// Mixes the color of a hitpoint with the shading colors from the light sources.
 /// </summary>
-let mixShadingColors cl cls =
-    let r = Color.getR cl
-    let g = Color.getG cl
-    let b = Color.getB cl
-
-    let folder (r, g, b) (cl', i, dp) =
-        let r' = Color.getR cl'
-        let g' = Color.getG cl'
-        let b' = Color.getB cl'
+/// <param name=c>The original color containing RGB values.</param>
+/// <param name=cs>A list of triples representing the shading colors.</param>
+/// <returns>A mixed color.</returns>
+let mixShadingColors c cs =
+    let folder (r, g, b) (c', i, dp) =
+        let r' = Color.getR c'
+        let g' = Color.getG c'
+        let b' = Color.getB c'
 
         let f = dp * i
 
         (r + (r' * f), g + (g' * f), b + (b' * f))
 
-    let (rf, gf, bf) = List.fold folder (0., 0., 0.) cls
+    let (rf, gf, bf) = List.fold folder (0., 0., 0.) cs
 
-    (r * rf, g * gf, b * bf)
+    (Color.getR c * rf, Color.getG c * gf, Color.getB c * bf)
 
 /// <summary>
-///
+/// Gets the color to shade and finds out which values to mix the color with.
 /// </summary>
-let setColor ss ls (g:Graphics) c (p, hps) =
-    let cp = Camera.getPosition c
-    let cl = Camera.getLookat c
-    let pw = Camera.getPixelWidth c
-    let ph = Camera.getPixelHeight c
-
+/// <param name=ss>A list of shapes in the scene.</param>
+/// <param name=ls>A list of lights in the scene.</param>
+/// <param name=r>A ray in the scene.</param>
+/// <param name=hps>A list of hitpoints for a ray in the scene.</param>
+/// <returns>A SolidBrush with the final mixed color.</returns>
+let getColor ss ls (r, hps) =
     // Get the closest hitpoint and the distance to it.
     match getClosestHitpoint hps with
     | Some (chp, chd) ->
-        // Get the camera lookat direction vector.
-        let cld = Vector.normalise (Point.distance cp cl)
+        // Get the ray normalised vector.
+        let rv = Ray.getVector r
+
+        // Get the ray origin point
+        let ro = Ray.getOrigin r
 
         // Get the point along the ray that we hit.
-        let hp = Point.move cp (chd * cld)
+        let hp = Point.move ro (chd * rv)
 
         // Get the direction of the hit normal.
+        // OBS: The normalisation should occur in Shape, and should not be needed below. It is just a precaution.
         let hnd = Vector.normalise (Shape.getHitNormal chp)
 
         // Get the point from which we should cast the shadow ray.
@@ -135,19 +156,14 @@ let setColor ss ls (g:Graphics) c (p, hps) =
         let g' = max 0. (min 255. (g' * 255.))
         let b' = max 0. (min 255. (b' * 255.))
 
-        let c = new SolidBrush(Color.FromArgb(int r', int g', int b'))
+        new SolidBrush(Color.FromArgb(int r', int g', int b'))
 
-        g.FillRectangle(c, p % pw, p / ph, 1, 1)
-
-    | None ->
-        let c = new SolidBrush(Color.FromArgb(0, 0, 0))
-
-        g.FillRectangle(c, p % pw, p / ph, 1, 1)
+    | None -> new SolidBrush(Color.FromArgb(0, 0, 0))
 
 /// <summary>
 /// Render a scene to a Bitmap object.
 /// </summary>
-/// <param name=s>The scene to render.</param>
+/// <param name=scene>The scene to render.</param>
 /// <returns>The rendered bitmap of the scene.</returns>
 let render scene =
     let cam = Scene.getCamera scene
@@ -164,7 +180,7 @@ let render scene =
     // Find r, d and z
     let r = Vector.normalise (Vector.crossProduct camUp l)
     let d = Vector.normalise (Vector.crossProduct r l)
-    let z = Vector.multScalar l zoom
+    let z = zoom * l
 
     let W = uwidth / (float pwidth)
     let H = uheight / (float pheight)
@@ -187,16 +203,16 @@ let render scene =
             (p, Ray.make camOrigin (Point.distance camOrigin p''))
     }
 
-    let mapper ss (p, r) = async {
-        return p, getHitpoints ss r
+    let mapper ss ls (p, r) = async {
+      return p, getColor ss ls (r, getHitpoints ss r infinity)
     }
 
     // Map the async task to the gridRays sequence in parallel and wait for it.
-    let hits = gridRays |> Seq.map (mapper shapes)
-                        |> Async.Parallel
-                        |> Async.RunSynchronously
+    let colors = gridRays |> Seq.map (mapper shapes lights)
+                          |> Async.Parallel
+                          |> Async.RunSynchronously
 
-    // Map the setColor function to the hits sequence. Ignore the output.
-    Seq.map (setColor shapes lights g cam) hits |> Seq.iter ignore
+    for (p, c) in colors do
+        g.FillRectangle(c, p % pwidth, p / pheight, 1, 1)
 
     bitmap
