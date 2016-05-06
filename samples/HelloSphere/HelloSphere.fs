@@ -10,4 +10,4 @@ type public Program() =
         let sphere = mkSphere (mkPoint 0.0 0.0 0.0) 1.0 (mkMatTexture (mkMaterial (mkColour 0. 0. 1.) 0.0))
         let scene = mkScene [sphere] [light] ambientLight camera 0
 
-        renderToFile scene "sphere.png"
+        renderToScreen scene
