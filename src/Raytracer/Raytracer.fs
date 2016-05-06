@@ -69,7 +69,8 @@ let mkAmbientLight (c : colour) (i : float) : ambientLight =
     Light.make (Direction.Ambient) c i
 
 let mkScene (s : shape list) (l : light list) (a : ambientLight) (c : camera) (m : int) : scene =
-    Scene.make s (a :: l) c m
+    Scene.make s (a :: l)
+
 let renderToScreen (sc : scene) : unit = failwith "renderToScreen not implemented"
 let renderToFile (sc : scene) (path : string) : unit = failwith "renderToFile not implemented"
 

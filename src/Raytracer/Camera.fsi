@@ -36,5 +36,3 @@ val getPixelWidth : Camera -> int
 
 /// Get the pixelheight of a camera.
 val getPixelHeight : Camera -> int
-
-val getCamera : Camera -> (Point * Point * Vector * float * float * float * int * int)

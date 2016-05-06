@@ -4,6 +4,7 @@ module Camera
 open Vector
 open Point
 
+[<NoComparison>]
 type Camera = C of Point * Point * Vector * float * float * float * int * int
 
 /// Raised in case of attempting to create a camera that looks at its position.
@@ -41,5 +42,3 @@ let getUnitHeight (C(_, _, _, _, _, unitHeight, _, _)) = unitHeight
 let getPixelWidth (C(_, _, _, _, _, _, pixelWidth, _)) = pixelWidth
 
 let getPixelHeight (C(_, _, _, _, _, _, _, pixelHeight)) = pixelHeight
-
-let getCamera (C(pos, lookat, up, zoom, unitWidth, unitHeight, pixelWidth, pixelHeight)) = (pos, lookat, up, zoom, unitWidth, unitHeight, pixelWidth, pixelHeight)

@@ -2,6 +2,7 @@ module Render
 
 open System.Drawing
 
+open Camera
 open Scene
 
 /// <summary>
@@ -9,4 +10,4 @@ open Scene
 /// </summary>
 /// <param name=s>The scene to render.</param>
 /// <returns>The rendered bitmap of the scene.</returns>
-val render : s:Scene -> Bitmap
+val render : c:Camera -> s:Scene -> Bitmap

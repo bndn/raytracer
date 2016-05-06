@@ -70,7 +70,7 @@ let scene (pwidth : int) (pheight : int) =
     do pb.Left          <- 10 // margin from left
 
     // Put the bitmap into the PictureBox.
-    do pb.Image <- Render.render scene
+    do pb.Image <- Render.render camera scene
 
     // Return the PictureBox
     pb
