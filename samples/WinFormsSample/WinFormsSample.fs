@@ -57,9 +57,15 @@ let scene (pwidth : int) (pheight : int) =
     let ambientLight = Raytracer.mkAmbientLight lightColor 0.5
     let light = Raytracer.mkLight (Raytracer.mkPoint -1. 1. -2.) lightColor 0.95
 
-    let discCenter = Point.make 0.5 0.1 0.2
-    let discMaterial = Raytracer.mkMaterial green 0.5
-    let disc = Raytracer.mkDisc discCenter 0.75 (Raytracer.mkMatTexture discMaterial)
+    let discCenter = Point.make 2. 2. 0.
+    let discTexture =
+        Raytracer.mkTexture (
+            fun u v ->
+                if u > 0.5 && v > 0.5
+                then Raytracer.mkMaterial green 0.5
+                else Raytracer.mkMaterial white 0.5
+            )
+    let disc = Raytracer.mkDisc discCenter 0.25 discTexture
 
     let scene = Raytracer.mkScene [sphere;plane;disc] [light] ambientLight camera 2
 
