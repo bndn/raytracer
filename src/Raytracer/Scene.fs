@@ -3,9 +3,10 @@ module Scene
 
 open Shape
 open Light
+open Kdtree
 
 [<NoComparison>]
-type Scene = Scene of Shape list * Light list
+type Scene = Scene of Shape list * Shape kdtree * Light list
 
 [<Literal>]
 let GammaFactor = 2.
@@ -23,21 +24,28 @@ let make ss ls =
     if List.isEmpty ls
     then invalidArg "ls" "Cannot be empty"
 
-    Scene(ss, ls)
+    let folder (ss, ts) s =
+        match Shape.getBounds s with
+        | Some b -> (ss, (s, b) :: ts)
+        | None   -> (s :: ss, ts)
+
+    let (ss, ts) = List.fold folder ([], []) ss
+
+    Scene(ss, Kdtree.make ts, ls)
 
 /// <summary>
 /// Get the list of shapes in a scene.
 /// </summary>
 /// <param name=s>The scene to get the shapes from.</param>
 /// <returns>The list of shapes in the scene.</returns>
-let getShapes = function Scene(ss, _) -> ss
+let getShapes = function Scene(ss, _, _) -> ss
 
 /// <summary>
 /// Get the list of lights in a scene.
 /// </summary>
 /// <param name=s>The scene to get the lights from.</param>
 /// <returns>The list of lights in the scene.</returns>
-let getLights = function Scene(_, ls) -> ls
+let getLights = function Scene(_, _, ls) -> ls
 
 /// </summary>
 /// Find the closest of a list of hitpoints.
@@ -60,15 +68,24 @@ let getClosestHitpoint = function
 /// <param name=d>The maximum distance that the ray travels.</param>
 /// <param name=s>The scene to check.</param>
 /// <returns>The list of hit points.</returns>
-let getHitpoints r d s =
-    let folder hps s =
+let getHitpoints r d (Scene(ss, ts, _)) =
+    let folder d hps s =
         let hits = Shape.hitFunction r s
 
         match getClosestHitpoint hits with
-        | Some (chp, chd) -> if chd <= d then hits @ hps else hps
+        | Some(_, chd) -> if chd <= d then hits @ hps else hps
         | None -> hps
 
-    List.fold folder [] (getShapes s)
+    let traverser d es =
+        match List.fold (folder d) [] es with
+        | []  -> None
+        | hps -> Some hps
+
+    let hps = List.fold (folder d) [] ss
+
+    match Kdtree.traverse traverser r ts with
+    | Some hp -> hp @ hps
+    | None    -> hps
 
 /// <summary>
 /// Given a shadowpoint and its lightvectors we find the color, intensity and
