@@ -56,7 +56,8 @@ type vector = Vector
 ////////////////////////////////////////////////////////////////////////////////
 // Primitives
 // -----------------------------------------------------------------------------
-//
+// The following functions are constructors for the different primitive types
+// (primitive in relation to the raytracer) exposed by the core libraries.
 ////////////////////////////////////////////////////////////////////////////////
 
 val mkVector : x:float -> y:float -> z:float -> vector
@@ -70,7 +71,9 @@ val mkMatTexture : m:material -> texture
 ////////////////////////////////////////////////////////////////////////////////
 // Shapes
 // -----------------------------------------------------------------------------
-//
+// The following functions are constructors for the different shapes that can be
+// rendered by the raytracer. These are all composed from the various primitives
+// found above.
 ////////////////////////////////////////////////////////////////////////////////
 
 // val mkShape : s:baseShape -> t:texture -> shape
@@ -88,7 +91,8 @@ val mkPlane : t:texture -> shape
 ////////////////////////////////////////////////////////////////////////////////
 // Constructive Solid Geometry
 // -----------------------------------------------------------------------------
-//
+// The following functions are used for performing constructive solid geometry
+// operations on the shapes from above.
 ////////////////////////////////////////////////////////////////////////////////
 
 // val union : r:shape -> s:shape -> shape
