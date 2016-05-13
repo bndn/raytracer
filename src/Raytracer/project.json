@@ -23,6 +23,7 @@
         "Shape": "",
         "Texture": "",
         "Vector": "",
+        "Transform": "",
         "FSharp.Dnx": {
             "type": "build",
             "version": "1.0.0-*"

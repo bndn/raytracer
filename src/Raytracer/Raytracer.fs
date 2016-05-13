@@ -9,8 +9,7 @@ open Scene
 open Shape
 open Texture
 open Vector
-
-type dummy = unit
+open Transform
 
 type vector = Vector
 type point = Point
@@ -23,7 +22,7 @@ type camera = Camera
 type scene = Scene
 type light = Light
 type ambientLight = Light
-type transformation = dummy
+type transformation = Transformation
 
 let mkVector (x : float) (y : float) (z : float) : vector = Vector.make x y z
 let mkPoint (x : float) (y : float) (z : float) : point = Point.make x y z
@@ -74,19 +73,19 @@ let mkScene (s : shape list) (l : light list) (a : ambientLight) (c : camera) (m
 let renderToScreen (sc : scene) : unit = failwith "renderToScreen not implemented"
 let renderToFile (sc : scene) (path : string) : unit = failwith "renderToFile not implemented"
 
-let translate (x : float) (y : float) (z : float) : transformation = failwith "translate not implemented"
-let rotateX (angle : float) : transformation = failwith "rotateX not implemented"
-let rotateY (angle : float) : transformation = failwith "rotateY not implemented"
-let rotateZ (angle : float) : transformation = failwith "rotateZ not implemented"
-let sheareXY (distance : float) : transformation = failwith "sheareXY not implemented"
-let sheareXZ (distance : float) : transformation = failwith "sheareXZ not implemented"
-let sheareYX (distance : float) : transformation = failwith "sheareYX not implemented"
-let sheareYZ (distance : float) : transformation = failwith "sheareYZ not implemented"
-let sheareZX (distance : float) : transformation = failwith "sheareZX not implemented"
-let sheareZY (distance : float) : transformation = failwith "sheareZY not implemented"
-let scale (x : float) (y : float) (z : float) : transformation = failwith "scale not implemented"
-let mirrorX : transformation = failwith "mirrorX not implemented"
-let mirrorY : transformation = failwith "mirrorX not implemented"
-let mirrorZ : transformation = failwith "mirrorX not implemented"
-let mergeTransformations (ts : transformation list) : transformation = failwith "mergeTransformation not implemented"
+let translate (x : float) (y : float) (z : float) : transformation = Transform.translate x y z
+let rotateX (angle : float) : transformation = Transform.rotate X angle
+let rotateY (angle : float) : transformation = Transform.rotate Y angle
+let rotateZ (angle : float) : transformation = Transform.rotate Z angle
+let sheareXY (distance : float) : transformation = Transform.shear X Y distance
+let sheareXZ (distance : float) : transformation = Transform.shear X Z distance
+let sheareYX (distance : float) : transformation = Transform.shear Y X distance
+let sheareYZ (distance : float) : transformation = Transform.shear Y Z distance
+let sheareZX (distance : float) : transformation = Transform.shear Z X distance
+let sheareZY (distance : float) : transformation = Transform.shear Z Y distance
+let scale (x : float) (y : float) (z : float) : transformation = Transform.scale x y z
+let mirrorX : transformation = Transform.mirror X
+let mirrorY : transformation = Transform.mirror Y
+let mirrorZ : transformation = Transform.mirror Z
+let mergeTransformations (ts : transformation list) : transformation = Transform.merge ts
 let transform (sh : shape) (tr : transformation) : shape = failwith "transform not implemented"

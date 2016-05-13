@@ -9,8 +9,7 @@ open Scene
 open Shape
 open Texture
 open Vector
-
-type dummy = unit
+open Transform
 
 type vector = Vector
 type point = Point
@@ -23,7 +22,7 @@ type camera = Camera
 type scene = Scene
 type light = Light
 type ambientLight = Light
-type transformation = dummy
+type transformation = Transformation
 
 val mkVector : x:float -> y:float -> z:float -> vector
 val mkPoint : x:float -> y:float -> c:float -> point
@@ -40,7 +39,6 @@ val mkMaterial : colour -> reflectivity : float -> material
 val mkTexture : (float -> float -> material) -> texture
 /// Construct a texture with a constant material for each point.
 val mkMatTexture : material -> texture
-
 
 /// Construct a textured shape from a base shape.
 /// Basic shapes are textured according to the texture space given.
@@ -121,7 +119,6 @@ val mkAmbientLight : colour : colour -> intensity : float -> ambientLight
 val mkScene : shapes : shape list -> lights : light list -> ambientLight -> camera -> max_reflect : int -> scene
 val renderToScreen : scene -> unit
 val renderToFile : scene -> filename : string -> unit
-
 
 /// For rotations all angles are in radians. Note that angles greater than 2*pi and less than zero are possible.
 val rotateX : angle : float -> transformation

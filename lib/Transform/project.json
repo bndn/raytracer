@@ -1,0 +1,9 @@
+{
+    "frameworks": {
+        "dnx451": {
+            "bin": {
+                "assembly": "Transform.0.0.0.dll"
+            }
+        }
+    }
+}
