@@ -101,8 +101,7 @@ let renderToScreen (s, c, mr:int) =
 
     Application.Run(f)
 let renderToFile (s, c, mr:int) (f:string) =
-    let b : Bitmap = render c s
-    b.Save(f, ImageFormat.Png)
+    let b : Bitmap = render c s in b.Save(f, ImageFormat.Png)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Affine Transformations
