@@ -1,15 +1,4 @@
 {
-    "version": "0.0.0",
-    "description": "",
-    "authors": [
-        "Jesper Bengtson <jebe@itu.dk>",
-        "Andreas Bjørn Hassing Nielsen <abhn@itu.dk>"
-    ],
-    "tags": [
-    ],
-    "projectUrl": "https://github.itu.dk/bndn/raytracer",
-    "licenseUrl": "https://github.itu.dk/bndn/raytracer/blob/master/LICENSE.md",
-
     "dependencies": {
         "Raytracer": "",
         "FSharp.Dnx": {
@@ -19,11 +8,7 @@
     },
 
     "frameworks": {
-        "dnx451": {
-            "frameworkAssemblies": {
-                "System.Drawing": ""
-            }
-        }
+        "dnx451": {}
     },
 
     "compiler": {

@@ -89,14 +89,11 @@ let mkAmbientLight c i = Light.make (Direction.Ambient) c i
 let mkScene ss ls al (c:Camera) (mr:int) = Scene.make ss (al :: ls), c, mr
 let renderToScreen (s, c, mr:int) =
     let p = new PictureBox()
-    do p.SizeMode  <- PictureBoxSizeMode.AutoSize
-    do p.Top       <- 3
-    do p.Left      <- 3
-    do p.Image     <- render c s
+    do p.SizeMode <- PictureBoxSizeMode.AutoSize
+    do p.Image    <- render c s
 
     let f = new Form()
-    do f.BackColor <- Color.White
-    do f.AutoSize  <- true
+    do f.AutoSize <- true
     do f.Controls.Add p
 
     Application.Run(f)
