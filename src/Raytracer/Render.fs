@@ -9,65 +9,65 @@ open System.Drawing
 /// <param name=s>The scene to render.</param>
 /// <returns>The rendered bitmap of the scene.</returns>
 let render c s =
-    let cp = Camera.getPosition c
-    let ca = Camera.getLookat c
-    let cu = Camera.getUpVector c
-    let cz = Camera.getZoom c
-    let uw = Camera.getUnitWidth c
-    let uh = Camera.getUnitHeight c
-    let pw = Camera.getPixelWidth c
-    let ph = Camera.getPixelHeight c
+    let p = Camera.getPosition c
+    let q = Camera.getLookat c
+    let u = Camera.getUpVector c
+    let z = Camera.getZoom c
+    let w = Camera.getUnitWidth c
+    let h = Camera.getUnitHeight c
+    let x = Camera.getPixelWidth c
+    let y = Camera.getPixelHeight c
 
-    let b = new Bitmap(pw, ph)
+    let b = new Bitmap(x, y)
+    let i = Graphics.FromImage(b)
 
-    // The Graphics object allows us to manipulate the bitmap.
-    let g = Graphics.FromImage(b)
+    // Find l
+    let l = Point.direction p q
 
-    // Find l (direction between p and q)
-    let l = Point.direction cp ca
-
-    // Find r, d and z
-    let r = Vector.normalise (Vector.crossProduct cu l)
+    // Find r and d
+    let r = Vector.normalise (Vector.crossProduct u l)
     let d = Vector.normalise (Vector.crossProduct r l)
-    let z = cz * l
 
-    let w = uw / (float pw)
-    let h = uh / (float ph)
+    let p' = Point.move p (z * l)
 
-    let p' = Point.move cp z
+    // Move to the top
+    let p' = Point.move p' ((h / 2.) * u)
 
-    // Move to top
-    let p' = Point.move p' ((uh / 2.) * cu)
+    // Move to the left
+    let p' = Point.move p' ((-w / 2.) * r)
 
-    // Move to top left
-    let p' = Point.move p' ((-uw / 2.) * r)
+    let W = w / (float x)
+    let H = h / (float y)
 
-    let gridRays = seq {
-        for p in 0..(pw * ph - 1) ->
-            let row = p / ph
+    let rs = seq {
+        for n in 0 .. x * y - 1 ->
+            let a = float (n % x)
+            let b = float (n / y)
 
-            // Move the point to work with to the right by i amount
-            let p'' = Point.move p' (w * ((float (p % pw)) + 0.5) * r)
+            // Move to the current column
+            let p' = Point.move p' (W * (a + 0.5) * r)
 
-            // Move the point down onto the current row
-            let p'' = Point.move p'' (h * ((float row) + 0.5) * d)
+            // Move to the current row
+            let p' = Point.move p' (H * (b + 0.5) * d)
 
-            (p, Ray.make cp (Point.distance cp p''))
+            (n, Ray.make p (Point.distance p p'))
     }
-    // Map the async task to the gridRays sequence in parallel and wait for it.
-    let colors = gridRays |> Seq.map (fun (p, r) -> async {
-                               return p, Scene.getHit s 5 infinity r
-                             })
-                          |> Async.Parallel
-                          |> Async.RunSynchronously
 
-    for (p, c) in colors do
-        let cr = Color.getR c * 255.
-        let cg = Color.getG c * 255.
-        let cb = Color.getB c * 255.
+    let m (p, r) = async {
+        return p, Scene.getHit s 5 infinity r
+    }
 
-        let c = new SolidBrush(Color.FromArgb(int cr, int cg, int cb))
+    let cs = rs |> Seq.map m
+                |> Async.Parallel
+                |> Async.RunSynchronously
 
-        g.FillRectangle(c, p % pw, p / ph, 1, 1)
+    for (p, c) in cs do
+        let r = Color.getR c * 255.
+        let g = Color.getG c * 255.
+        let b = Color.getB c * 255.
+
+        let c = new SolidBrush(Color.FromArgb(int r, int g, int b))
+
+        i.FillRectangle(c, x - (p % x), p / y, 1, 1)
 
     b
