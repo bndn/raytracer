@@ -65,7 +65,7 @@ let mkTriangle a b c m = Shape.mkTriangle a b c m
 let mkPlane t = Shape.mkPlane (Point.make 0. 0. 0.) (Vector.make 0. 1. 0.) t
 // let mkImplicit e = failwith "mkImplicit not implemented"
 // let mkPLY f s = failwith "mkPLY not implemented"
-// let mkHollowCylinder c r h t = failwith "mkHollowCylinder not implemented"
+let mkHollowCylinder c r h t = Shape.mkHollowCylinder c r h t
 // let mkSolidCylinder c r h s b t = failwith "mkSolidCylinder not implemented"
 // let mkDisc p r t = failwith "mkDisc not implemented"
 // let mkBox lo hi fr ba t b l r = failwith "mkBox not implemented"
@@ -74,10 +74,10 @@ let mkPlane t = Shape.mkPlane (Point.make 0. 0. 0.) (Vector.make 0. 1. 0.) t
 // Constructive Solid Geometry
 ////////////////////////////////////////////////////////////////////////////////
 
-// let group r s = failwith "group not implemented"
-// let union r s = failwith "union not implemented"
-// let intersection r s = failwith "intersection not implemented"
-// let subtraction r s = failwith "subtraction not implemented"
+let group r s = Shape.mkUnion r s
+let union r s = Shape.mkUnion r s
+let intersection r s = Shape.mkIntersection r s
+let subtraction r s = Shape.mkSubtraction r s
 
 ////////////////////////////////////////////////////////////////////////////////
 // Rendering

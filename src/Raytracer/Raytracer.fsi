@@ -83,7 +83,7 @@ val mkTriangle : a:point -> b:point -> c:point -> m:material -> shape
 val mkPlane : t:texture -> shape
 // val mkImplicit : e:string -> baseShape
 // val mkPLY : f:string -> s:bool -> baseShape
-// val mkHollowCylinder : c:point -> r:float -> h:float -> t:texture -> shape
+val mkHollowCylinder : c:point -> r:float -> h:float -> t:texture -> shape
 // val mkSolidCylinder : c:point -> r:float -> h:float -> s:texture -> b:texture -> t:texture -> shape
 // val mkDisc : p:point -> r:float -> t:texture -> shape
 // val mkBox : lo:point -> hi:point -> fr:texture -> ba:texture -> t:texture -> b:texture -> l:texture -> r:texture -> shape
@@ -95,10 +95,10 @@ val mkPlane : t:texture -> shape
 // operations on the shapes from above.
 ////////////////////////////////////////////////////////////////////////////////
 
-// val union : r:shape -> s:shape -> shape
-// val intersection : r:shape -> s:shape -> shape
-// val subtraction : r:shape -> s:shape -> shape
-// val group : r:shape -> r:shape -> shape
+val union : r:shape -> s:shape -> shape
+val intersection : r:shape -> s:shape -> shape
+val subtraction : r:shape -> s:shape -> shape
+val group : r:shape -> r:shape -> shape
 
 ////////////////////////////////////////////////////////////////////////////////
 // Rendering
