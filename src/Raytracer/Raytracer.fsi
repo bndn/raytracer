@@ -3,7 +3,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Core Libraries
 // -----------------------------------------------------------------------------
-//
+// These libraries provide the foundation of the raytracer and make available
+// types and functions for doing things like point and vector arithmetic, color
+// manipulations, affine transformations, and more.
 ////////////////////////////////////////////////////////////////////////////////
 
 open Color
@@ -16,9 +18,11 @@ open Transform
 open Vector
 
 ////////////////////////////////////////////////////////////////////////////////
-// Tracer Libraries
+// Tracer Modules
 // -----------------------------------------------------------------------------
-//
+// These modules are still somewhat specific to the raytracer and as such aren't
+// made available as standalone libraries. They provide functionality for
+// representing scenes of shapes and for rendering these to screen or files.
 ////////////////////////////////////////////////////////////////////////////////
 
 open Camera
