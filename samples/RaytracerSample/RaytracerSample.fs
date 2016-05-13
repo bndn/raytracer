@@ -24,7 +24,7 @@ let renderSphere toScreen =
         doRender scene (Some (path_to_files + "renderSphere.png"))
 
 let renderInsideSphere toScreen =
-    let light = mkLight (mkPoint 0.0 0.0 0.0) (fromColor Color.White) 3.0 in
+    let light = mkLight (mkPoint 0.0 0.0 0.0) (fromColor Color.White) 1.0 in
     let ambientLight = mkAmbientLight (fromColor Color.White) 0.1 in
     let camera = mkCamera (mkPoint 0.0 0.0 0.0) (mkPoint 0.0 0.0 4.0) (mkVector 0.0 1.0 0.0) 1.0 2.0 2.0 500 500 in
     let sphere = mkSphere (mkPoint 0.0 0.0 0.0) 1.0 (mkMatTexture (mkMaterial (fromColor Color.Red) 0.0)) in
