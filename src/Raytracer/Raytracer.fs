@@ -95,7 +95,6 @@ let renderToScreen (s, c, mr:int) =
     do p.Image     <- render c s
 
     let f = new Form()
-    do f.Text      <- "Raytracer"
     do f.BackColor <- Color.White
     do f.AutoSize  <- true
     do f.Controls.Add p
