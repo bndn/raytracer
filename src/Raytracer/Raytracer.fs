@@ -1,5 +1,9 @@
 ﻿module Raytracer
 
+open System.Drawing
+open System.Drawing.Imaging
+open System.Windows.Forms
+
 ////////////////////////////////////////////////////////////////////////////////
 // Core Libraries
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,8 +87,23 @@ let mkCamera p l u z w h pw ph = Camera.make p l u z w h pw ph
 let mkLight p c i = Light.make (Direction.Omni(p)) c i
 let mkAmbientLight c i = Light.make (Direction.Ambient) c i
 let mkScene ss ls al (c:Camera) (mr:int) = Scene.make ss (al :: ls), c, mr
-// let renderToScreen s = failwith "renderToScreen not implemented"
-// let renderToFile s f = failwith "renderToFile not implemented"
+let renderToScreen (s, c, mr:int) =
+    let p = new PictureBox()
+    do p.SizeMode  <- PictureBoxSizeMode.AutoSize
+    do p.Top       <- 3
+    do p.Left      <- 3
+    do p.Image     <- render c s
+
+    let f = new Form()
+    do f.Text      <- "Raytracer"
+    do f.BackColor <- Color.White
+    do f.AutoSize  <- true
+    do f.Controls.Add p
+
+    Application.Run(f)
+let renderToFile (s, c, mr:int) (f:string) =
+    let b : Bitmap = render c s
+    b.Save(f, ImageFormat.Png)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Affine Transformations

@@ -102,8 +102,8 @@ val mkCamera : p:point -> l:point -> u:vector -> z:float -> w:float -> h:float -
 val mkLight : p:point -> c:colour -> i:float -> light
 val mkAmbientLight : c:colour -> i:float -> ambientLight
 val mkScene : ss:shape list -> ls:light list -> al:ambientLight -> c:camera -> mr:int -> scene
-// val renderToScreen : s:scene -> unit
-// val renderToFile : s:scene -> f:string -> unit
+val renderToScreen : s:scene -> unit
+val renderToFile : s:scene -> f:string -> unit
 
 ////////////////////////////////////////////////////////////////////////////////
 // Affine Transformations
