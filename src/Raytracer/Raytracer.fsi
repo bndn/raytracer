@@ -1,142 +1,129 @@
 ﻿module Raytracer
 
-open Camera
+////////////////////////////////////////////////////////////////////////////////
+// Core Libraries
+// -----------------------------------------------------------------------------
+//
+////////////////////////////////////////////////////////////////////////////////
+
 open Color
 open Light
 open Material
 open Point
-open Scene
 open Shape
 open Texture
-open Vector
 open Transform
+open Vector
 
-type vector = Vector
-type point = Point
-type colour = Color
-type material = Material
-type shape = Shape
-type baseShape = Shape
-type texture = Texture
-type camera = Camera
-type scene = Scene
-type light = Light
+////////////////////////////////////////////////////////////////////////////////
+// Tracer Libraries
+// -----------------------------------------------------------------------------
+//
+////////////////////////////////////////////////////////////////////////////////
+
+open Camera
+open Render
+open Scene
+
+////////////////////////////////////////////////////////////////////////////////
+// Type Aliases
+// -----------------------------------------------------------------------------
+// These aliases exist as a compatibility layer between the core libraries and
+// the type names that are exposed by the raytracer API.
+//
+// What this in essence allows us to do is keep our type design decoupled from
+// the use-cases of the raytracer API, and as such keep the core libraries very
+// generic and reusable.
+////////////////////////////////////////////////////////////////////////////////
+
 type ambientLight = Light
+type baseShape = Shape
+type camera = Camera
+type colour = Color
+type light = Light
+type material = Material
+type point = Point
+type scene = Scene * Camera * int
+type shape = Shape
+type texture = Texture
 type transformation = Transformation
+type vector = Vector
+
+////////////////////////////////////////////////////////////////////////////////
+// Primitives
+// -----------------------------------------------------------------------------
+//
+////////////////////////////////////////////////////////////////////////////////
 
 val mkVector : x:float -> y:float -> z:float -> vector
 val mkPoint : x:float -> y:float -> c:float -> point
-val fromColor : c : System.Drawing.Color -> colour
+val fromColor : c:System.Drawing.Color -> colour
 val mkColour : r:float -> g:float -> b:float -> colour
+val mkMaterial : c:colour -> r:float -> material
+val mkTexture : f:(float -> float -> material) -> texture
+val mkMatTexture : m:material -> texture
 
-/// Construct a material with the given colour and reflectivity. Reflectivity
-/// is the ratio of how much the material reflects (1.0 means it is a perfect
-/// mirror and 0.0 means that the material does not reflect anything).
-val mkMaterial : colour -> reflectivity : float -> material
-/// Textures are functions that take x-y coordinates and produce a material.
-/// The x-y coordinates range over the texture space specified for the
-/// individual basic shapes (mkSphere, mkPlane etc.).
-val mkTexture : (float -> float -> material) -> texture
-/// Construct a texture with a constant material for each point.
-val mkMatTexture : material -> texture
+////////////////////////////////////////////////////////////////////////////////
+// Shapes
+// -----------------------------------------------------------------------------
+//
+////////////////////////////////////////////////////////////////////////////////
 
-/// Construct a textured shape from a base shape.
-/// Basic shapes are textured according to the texture space given.
-val mkShape : baseShape -> texture -> shape
+// val mkShape : s:baseShape -> t:texture -> shape
+val mkSphere : p:point -> r:float -> t:texture -> shape
+// val mkRectangle : p:point -> w:float -> h:float -> t:texture -> shape
+val mkTriangle : a:point -> b:point -> c:point -> m:material -> shape
+val mkPlane : t:texture -> shape
+// val mkImplicit : e:string -> baseShape
+// val mkPLY : f:string -> s:bool -> baseShape
+// val mkHollowCylinder : c:point -> r:float -> h:float -> t:texture -> shape
+// val mkSolidCylinder : c:point -> r:float -> h:float -> s:texture -> b:texture -> t:texture -> shape
+// val mkDisc : p:point -> r:float -> t:texture -> shape
+// val mkBox : lo:point -> hi:point -> fr:texture -> ba:texture -> t:texture -> b:texture -> l:texture -> r:texture -> shape
 
-/// Construct a sphere.
-/// texture coordinates: [0,1] X [0,1]
-val mkSphere : center : point -> radius : float -> texture -> shape
-/// Construct a rectangle.
-/// texture coordinates: [0,1] X [0,1]
-val mkRectangle : corner : point -> width : float -> height : float -> texture -> shape
-/// Constructe a triangle.
-val mkTriangle : a:point -> b:point -> c:point -> material -> shape
-/// Construct a plane with the equation z = 0,
-/// i.e. the x-y plane
-/// texture coordinates: R X R
-val mkPlane : texture -> shape
-/// Construct an implicit surface.
-/// texture coordinates: {(0,0)}, i.e. has only a single material
-/// The gramar for valid expressions are the following and you will need to create a parser for it
-/// x := string
-/// n := integer
-/// f := float
-/// e := e + e (addition)
-///      e - e (subtraction)
-///      -e    (negation)
-///      e * e (multiplication)
-///      e / e (division)
-///      e^n   (exponent)
-///      e_n   (root)
-///      (e)   (parenthesis)
-///      x     (variable)
-///      n     (integer number)
-///      f     (floating point number)
-///
-/// Note that the expression can contain both floats and integers. The operators bind in the expected order
-/// (note that negation binds the hardest (-x^2) is (-x)^2 and not -(x^2)
-val mkImplicit : string -> baseShape
-/// Load a triangle mesh from a PLY file.
-/// texture coordinates: [0,1] X [0,1]
-val mkPLY : filename : string -> smoothShading : bool -> baseShape
-/// construct a hollow cylinder (i.e. open on both ends)
-/// texture coordinates: [0,1] X [0,1]
-val mkHollowCylinder : center : point -> radius : float -> height : float -> texture -> shape
-/// construct a solid cylinder (i.e. closed on either end by a disk)
-/// texture space: hollow cylinder part is textured like mkHollowCylinder;
-///                top and bottom disk are textured like mkDisk
-val mkSolidCylinder : center : point -> radius : float -> height : float ->
-                      cylinder: texture -> bottom : texture -> top : texture -> shape
-/// construct a disk at point p in the plane parallel
-/// to the x-y plane
-/// texture coordinates: [0,1] X [0,1]
-val mkDisc : p : point -> radius : float -> texture -> shape
-/// construct an axis-aligned box with lower corner low
-/// and higher corner high
-/// textures: the six faces of the box are textured like mkRectangle
-val mkBox : low : point -> high : point -> front : texture -> back : texture ->
-            top : texture -> bottom : texture -> left : texture -> right : texture  -> shape
+////////////////////////////////////////////////////////////////////////////////
+// Constructive Solid Geometry
+// -----------------------------------------------------------------------------
+//
+////////////////////////////////////////////////////////////////////////////////
 
-/// union produces the union of s1 and s2 in such a way that all internal edges are deleted.
-val union : s1: shape -> s2 : shape -> shape
-val intersection : shape -> shape -> shape
-/// subtracts s2 from s1 in such a way that s2's texture is maintained in the places where s1 is cut.
-val subtraction : s1 : shape -> s2 : shape -> shape
-/// group works like union, but does not remove internal edges
-val group : shape -> shape -> shape
+// val union : r:shape -> s:shape -> shape
+// val intersection : r:shape -> s:shape -> shape
+// val subtraction : r:shape -> s:shape -> shape
+// val group : r:shape -> r:shape -> shape
 
-/// Construct a camera at 'position' pointed at 'lookat'. The 'up' vector describes which way is up.
-/// The viewplane is has dimensions 'unitWidth' and 'unitHeight', has a pixel resolution of 'pixelWidth'
-/// times 'pixelHeight', and is 'distance' units in front of the camera.
-val mkCamera : position : point -> lookat : point -> up : vector -> distance : float ->
-  unitWidth : float -> unitHeight : float -> pixelWidth : int -> pixelHeight : int -> camera
+////////////////////////////////////////////////////////////////////////////////
+// Rendering
+// -----------------------------------------------------------------------------
+//
+////////////////////////////////////////////////////////////////////////////////
 
-val mkLight : position : point -> colour : colour -> intensity : float -> light
+val mkCamera : p:point -> l:point -> u:vector -> z:float -> w:float -> h:float -> pw:int -> ph:int -> camera
+val mkLight : p:point -> c:colour -> i:float -> light
+val mkAmbientLight : c:colour -> i:float -> ambientLight
+val mkScene : ss:shape list -> ls:light list -> al:ambientLight -> c:camera -> mr:int -> scene
+// val renderToScreen : s:scene -> unit
+// val renderToFile : s:scene -> f:string -> unit
 
-val mkAmbientLight : colour : colour -> intensity : float -> ambientLight
+////////////////////////////////////////////////////////////////////////////////
+// Affine Transformations
+// -----------------------------------------------------------------------------
+//
+////////////////////////////////////////////////////////////////////////////////
 
-val mkScene : shapes : shape list -> lights : light list -> ambientLight -> camera -> max_reflect : int -> scene
-val renderToScreen : scene -> unit
-val renderToFile : scene -> filename : string -> unit
-
-/// For rotations all angles are in radians. Note that angles greater than 2*pi and less than zero are possible.
-val rotateX : angle : float -> transformation
-val rotateY : angle : float -> transformation
-val rotateZ : angle : float -> transformation
-val sheareXY : distance : float -> transformation
-val sheareXZ : distance : float -> transformation
-val sheareYX : distance : float -> transformation
-val sheareYZ : distance : float -> transformation
-val sheareZX : distance : float -> transformation
-val sheareZY : distance : float -> transformation
-val scale : x : float -> y : float -> z : float -> transformation
-val translate : x : float -> y : float -> z : float -> transformation
+val rotateX : a:float -> transformation
+val rotateY : a:float -> transformation
+val rotateZ : a:float -> transformation
+val sheareXY : d:float -> transformation
+val sheareXZ : d:float -> transformation
+val sheareYX : d:float -> transformation
+val sheareYZ : d:float -> transformation
+val sheareZX : d:float -> transformation
+val sheareZY : d:float -> transformation
+val scale : x:float -> y:float -> z:float -> transformation
+val translate : x:float -> y:float -> z:float -> transformation
 val mirrorX : transformation
 val mirrorY : transformation
 val mirrorZ : transformation
-/// Merge the givne list of transformations into one, such that the resulting
-/// transformation is equivalent to applying the individual transformations
-/// from left to right (i.e. starting with the first element in the list).
-val mergeTransformations : transformation list -> transformation
-val transform : shape -> transformation -> shape
+val mergeTransformations : ts:transformation list -> transformation
+// val transform : s:shape -> t:transformation -> shape
