@@ -1,6 +1,6 @@
 {
     "version": "0.0.0",
-    "description": "",
+    "description": "A semi-efficient raytracing back-end powered by caffeine and bad puns",
     "authors": [
         "Anders Munck Højsgaard <amuh@itu.dk>",
         "Andreas Bjørn Hassing Nielsen <abhn@itu.dk>",
@@ -10,6 +10,10 @@
         "Mathias Grundtvig Andreasen <mgru@itu.dk>"
     ],
     "tags": [
+        "raytracer",
+        "back",
+        "end",
+        "fsharp"
     ],
     "projectUrl": "https://github.itu.dk/bndn/raytracer",
     "licenseUrl": "https://github.itu.dk/bndn/raytracer/blob/master/LICENSE.md",
