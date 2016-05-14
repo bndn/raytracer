@@ -37,39 +37,28 @@ let make p l u z uw uh pw ph =
 /// <param name=s>The scene to render.</param>
 /// <returns>The rendered bitmap of the scene.</returns>
 let render (C(p, q, u, z, w, h, x, y)) s =
-    let b = new Bitmap(x, y)
-    let i = Graphics.FromImage(b)
+    let bm = new Bitmap(x, y)
 
-    // Find l
     let l = Point.direction p q
-
-    // Find r and d
     let r = Vector.normalise (Vector.crossProduct u l)
     let d = Vector.normalise (Vector.crossProduct r l)
 
     let p' = Point.move p (z * l)
-
-    // Move to the top
-    let p' = Point.move p' ((h / 2.) * u)
-
-    // Move to the left
+    let p' = Point.move p' ((+h / 2.) * u)
     let p' = Point.move p' ((-w / 2.) * r)
 
-    let W = w / (float x)
-    let H = h / (float y)
+    let W = w / float x
+    let H = h / float y
 
     let rs = seq {
         for n in 0 .. x * y - 1 ->
             let a = float (n % x)
             let b = float (n / y)
 
-            // Move to the current column
             let p' = Point.move p' (W * (a + 0.5) * r)
-
-            // Move to the current row
             let p' = Point.move p' (H * (b + 0.5) * d)
 
-            (n, Ray.make p (Point.distance p p'))
+            n, Ray.make p (Point.distance p p')
     }
 
     let m (p, r) = async {
@@ -80,13 +69,12 @@ let render (C(p, q, u, z, w, h, x, y)) s =
                 |> Async.Parallel
                 |> Async.RunSynchronously
 
-    for (p, c) in cs do
+    for n, c in cs do
         let r = Color.getR c * 255.
         let g = Color.getG c * 255.
         let b = Color.getB c * 255.
+        let c = Color.FromArgb(int r, int g, int b)
 
-        let c = new SolidBrush(Color.FromArgb(int r, int g, int b))
+        do bm.SetPixel(x - (n % x), n / y, c)
 
-        i.FillRectangle(c, x - (p % x), p / y, 1, 1)
-
-    b
+    bm
