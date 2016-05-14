@@ -54,12 +54,10 @@
     },
     "fsharp": {
         "files": [
-            "Camera.fsi",
-            "Camera.fs",
             "Scene.fsi",
             "Scene.fs",
-            "Render.fsi",
-            "Render.fs",
+            "Camera.fsi",
+            "Camera.fs",
             "Raytracer.fsi",
             "Raytracer.fs"
         ]

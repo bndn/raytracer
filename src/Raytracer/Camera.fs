@@ -1,8 +1,11 @@
 /// Copyright (C) 2016 The Authors.
 module Camera
 
-open Vector
+open System.Drawing
+
 open Point
+open Vector
+open Scene
 
 [<NoComparison>]
 type Camera = C of Point * Point * Vector * float * float * float * int * int
@@ -27,18 +30,63 @@ let make p l u z uw uh pw ph =
     if p = l then raise InvalidCameraException
     C(p, l, u, z, uw, uh, pw, ph)
 
-let getPosition (C(pos, _, _, _, _, _, _, _)) = pos
+/// <summary>
+/// Render a scene to a Bitmap object.
+/// </summary>
+/// <param name=c>The camera.</param>
+/// <param name=s>The scene to render.</param>
+/// <returns>The rendered bitmap of the scene.</returns>
+let render (C(p, q, u, z, w, h, x, y)) s =
+    let b = new Bitmap(x, y)
+    let i = Graphics.FromImage(b)
 
-let getLookat (C(_, lookat, _, _, _, _, _, _)) = lookat
+    // Find l
+    let l = Point.direction p q
 
-let getUpVector (C(_, _, up, _, _, _, _, _)) = up
+    // Find r and d
+    let r = Vector.normalise (Vector.crossProduct u l)
+    let d = Vector.normalise (Vector.crossProduct r l)
 
-let getZoom (C(_, _, _, zoom, _, _, _, _)) = zoom
+    let p' = Point.move p (z * l)
 
-let getUnitWidth (C(_, _, _, _, unitWidth, _, _, _)) = unitWidth
+    // Move to the top
+    let p' = Point.move p' ((h / 2.) * u)
 
-let getUnitHeight (C(_, _, _, _, _, unitHeight, _, _)) = unitHeight
+    // Move to the left
+    let p' = Point.move p' ((-w / 2.) * r)
 
-let getPixelWidth (C(_, _, _, _, _, _, pixelWidth, _)) = pixelWidth
+    let W = w / (float x)
+    let H = h / (float y)
 
-let getPixelHeight (C(_, _, _, _, _, _, _, pixelHeight)) = pixelHeight
+    let rs = seq {
+        for n in 0 .. x * y - 1 ->
+            let a = float (n % x)
+            let b = float (n / y)
+
+            // Move to the current column
+            let p' = Point.move p' (W * (a + 0.5) * r)
+
+            // Move to the current row
+            let p' = Point.move p' (H * (b + 0.5) * d)
+
+            (n, Ray.make p (Point.distance p p'))
+    }
+
+    let m (p, r) = async {
+        return p, Scene.getHit s 5 infinity r
+    }
+
+    let cs = rs |> Seq.map m
+                |> Async.Parallel
+                |> Async.RunSynchronously
+
+    for (p, c) in cs do
+        let r = Color.getR c * 255.
+        let g = Color.getG c * 255.
+        let b = Color.getB c * 255.
+
+        let c = new SolidBrush(Color.FromArgb(int r, int g, int b))
+
+        i.FillRectangle(c, x - (p % x), p / y, 1, 1)
+
+    b
