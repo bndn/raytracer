@@ -75,17 +75,17 @@ val mkMatTexture : m:material -> texture
 // found above.
 ////////////////////////////////////////////////////////////////////////////////
 
-// val mkShape : s:baseShape -> t:texture -> shape
+val mkShape : s:baseShape -> t:texture -> shape
 val mkSphere : p:point -> r:float -> t:texture -> shape
-// val mkRectangle : p:point -> w:float -> h:float -> t:texture -> shape
+val mkRectangle : p:point -> w:float -> h:float -> t:texture -> shape
 val mkTriangle : a:point -> b:point -> c:point -> m:material -> shape
 val mkPlane : t:texture -> shape
-// val mkImplicit : e:string -> baseShape
-// val mkPLY : f:string -> s:bool -> baseShape
+val mkImplicit : e:string -> baseShape
+val mkPLY : f:string -> s:bool -> baseShape
 val mkHollowCylinder : c:point -> r:float -> h:float -> t:texture -> shape
-// val mkSolidCylinder : c:point -> r:float -> h:float -> s:texture -> b:texture -> t:texture -> shape
-// val mkDisc : p:point -> r:float -> t:texture -> shape
-// val mkBox : lo:point -> hi:point -> fr:texture -> ba:texture -> t:texture -> b:texture -> l:texture -> r:texture -> shape
+val mkSolidCylinder : c:point -> r:float -> h:float -> s:texture -> b:texture -> t:texture -> shape
+val mkDisc : p:point -> r:float -> t:texture -> shape
+val mkBox : lo:point -> hi:point -> fr:texture -> ba:texture -> t:texture -> b:texture -> l:texture -> r:texture -> shape
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructive Solid Geometry
@@ -133,4 +133,4 @@ val mirrorX : transformation
 val mirrorY : transformation
 val mirrorZ : transformation
 val mergeTransformations : ts:transformation list -> transformation
-// val transform : s:shape -> t:transformation -> shape
+val transform : s:shape -> t:transformation -> shape

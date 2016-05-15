@@ -57,17 +57,17 @@ let mkMatTexture m = Texture.make (fun _ _ -> m)
 // Shapes
 ////////////////////////////////////////////////////////////////////////////////
 
-// let mkShape s t = failwith "mkShape not implemented"
+let mkShape (s:baseShape) (t:texture) : shape = failwith "mkShape not implemented"
 let mkSphere p r t = Shape.mkSphere p r t
-// let mkRectangle p w h t = failwith "mkRectangle not implemented"
+let mkRectangle (p:point) (w:float) (h:float) (t:texture) : shape = failwith "mkRectangle not implemented"
 let mkTriangle a b c m = Shape.mkTriangle a b c m
 let mkPlane t = Shape.mkPlane (Point.make 0. 0. 0.) (Vector.make 0. 1. 0.) t
-// let mkImplicit e = failwith "mkImplicit not implemented"
-// let mkPLY f s = failwith "mkPLY not implemented"
+let mkImplicit (e:string) : baseShape = failwith "mkImplicit not implemented"
+let mkPLY (f:string) (s:bool) : baseShape = failwith "mkPLY not implemented"
 let mkHollowCylinder c r h t = Shape.mkHollowCylinder c r h t
-// let mkSolidCylinder c r h s b t = failwith "mkSolidCylinder not implemented"
-// let mkDisc p r t = failwith "mkDisc not implemented"
-// let mkBox lo hi fr ba t b l r = failwith "mkBox not implemented"
+let mkSolidCylinder (c:point) (r:float) (h:float) (s:texture) (b:texture) (t:texture) : shape = failwith "mkSolidCylinder not implemented"
+let mkDisc (p:point) (r:float) (t:texture) : shape = failwith "mkDisc not implemented"
+let mkBox (lo:point) (hi:point) (fr:texture) (ba:texture) (t:texture) (b:texture) (l:texture) (r:texture) : shape = failwith "mkBox not implemented"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructive Solid Geometry
@@ -118,4 +118,4 @@ let mirrorX = Transform.mirror X
 let mirrorY = Transform.mirror Y
 let mirrorZ = Transform.mirror Z
 let mergeTransformations ts = Transform.merge ts
-// let transform s t = failwith "transform not implemented"
+let transform (s:shape) (t:transformation) : shape = failwith "transform not implemented"
