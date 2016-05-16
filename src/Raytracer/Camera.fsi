@@ -22,4 +22,4 @@ val make : Point -> Point -> Vector -> float -> float -> float -> int -> int -> 
 /// <param name=mr>The number of times to reflect rays.</param>
 /// <param name=s>The scene to render.</param>
 /// <returns>The rendered scene.</returns>
-val render : c:Camera -> mr:int -> s:Scene -> (int * int * Color) seq
+val render : c:Camera -> mr:int -> s:Scene -> int * int * (int * int * Color) seq
