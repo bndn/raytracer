@@ -3,6 +3,7 @@
 open System.Drawing
 open System.Drawing.Imaging
 open System.Windows.Forms
+open FSharp.Collections.ParallelSeq
 
 ////////////////////////////////////////////////////////////////////////////////
 // Core Libraries
@@ -86,18 +87,37 @@ let mkCamera p l u z w h pw ph = Camera.make p l u z w h pw ph
 let mkLight p c i = Light.make (Direction.Omni(p)) c i
 let mkAmbientLight c i = Light.make (Direction.Ambient) c i
 let mkScene ss ls al (c:Camera) (mr:int) = Scene.make ss (al :: ls), c, mr
-let renderToScreen (s, c, mr:int) =
+
+let renderToBitmap (s, c, mr) =
+    let (w, h, cs) = render c mr s
+
+    let bm = new Bitmap(w, h)
+
+    let i (x, y, c) =
+        let r = Color.getR c * 255.
+        let g = Color.getG c * 255.
+        let b = Color.getB c * 255.
+        let c = Color.FromArgb(int r, int g, int b)
+
+        do bm.SetPixel(w - x, y, c)
+
+    PSeq.iter i cs
+
+    bm
+
+let renderToScreen s =
     let p = new PictureBox()
     do p.SizeMode <- PictureBoxSizeMode.AutoSize
-    do p.Image    <- render c mr s
+    do p.Image    <- renderToBitmap s
 
     let f = new Form()
     do f.AutoSize <- true
     do f.Controls.Add p
 
     Application.Run(f)
-let renderToFile (s, c, mr:int) (f:string) =
-    let b : Bitmap = render c mr s in b.Save(f, ImageFormat.Png)
+
+let renderToFile s (f:string) =
+    let bm : Bitmap = renderToBitmap s in bm.Save(f, ImageFormat.Png)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Affine Transformations
