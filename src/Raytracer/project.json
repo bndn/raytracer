@@ -28,6 +28,7 @@
         "Texture": "",
         "Vector": "",
         "Transform": "",
+        "Kdtree": "",
         "FSharp.Dnx": {
             "type": "build",
             "version": "1.0.0-*"
