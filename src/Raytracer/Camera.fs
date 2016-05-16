@@ -2,6 +2,7 @@
 module Camera
 
 open System.Drawing
+open FSharp.Collections.ParallelSeq
 
 open Point
 open Vector
@@ -38,8 +39,6 @@ let make p l u z uw uh pw ph =
 /// <param name=s>The scene to render.</param>
 /// <returns>The rendered bitmap of the scene.</returns>
 let render (C(p, q, u, z, w, h, x, y)) mr s =
-    let bm = new Bitmap(x, y)
-
     let l = Point.direction p q
     let r = Vector.normalise (Vector.crossProduct u l)
     let d = Vector.normalise (Vector.crossProduct r l)
@@ -51,7 +50,7 @@ let render (C(p, q, u, z, w, h, x, y)) mr s =
     let W = w / float x
     let H = h / float y
 
-    let rs = seq {
+    let cs = seq {
         for n in 0 .. x * y - 1 ->
             let a = float (n % x)
             let b = float (n / y)
@@ -59,23 +58,18 @@ let render (C(p, q, u, z, w, h, x, y)) mr s =
             let p' = Point.move p' (W * (a + 0.5) * r)
             let p' = Point.move p' (H * (b + 0.5) * d)
 
-            n, Ray.make p (Point.distance p p')
+            let r = Ray.make p (Point.distance p p')
+
+            n, Scene.getHit s mr infinity r
     }
 
-    let m (p, r) = async {
-        return p, Scene.getHit s mr infinity r
-    }
-
-    let cs = rs |> Seq.map m
-                |> Async.Parallel
-                |> Async.RunSynchronously
-
-    for n, c in cs do
+    let f (bm:Bitmap) (n, c) =
         let r = Color.getR c * 255.
         let g = Color.getG c * 255.
         let b = Color.getB c * 255.
         let c = Color.FromArgb(int r, int g, int b)
 
         do bm.SetPixel(x - (n % x), n / y, c)
+        bm
 
-    bm
+    PSeq.fold f (new Bitmap(x, y)) cs
