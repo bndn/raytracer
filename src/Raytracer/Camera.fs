@@ -34,9 +34,10 @@ let make p l u z uw uh pw ph =
 /// Render a scene to a Bitmap object.
 /// </summary>
 /// <param name=c>The camera.</param>
+/// <param name=mr>The number of times to reflect rays.</param>
 /// <param name=s>The scene to render.</param>
 /// <returns>The rendered bitmap of the scene.</returns>
-let render (C(p, q, u, z, w, h, x, y)) s =
+let render (C(p, q, u, z, w, h, x, y)) mr s =
     let bm = new Bitmap(x, y)
 
     let l = Point.direction p q
@@ -62,7 +63,7 @@ let render (C(p, q, u, z, w, h, x, y)) s =
     }
 
     let m (p, r) = async {
-        return p, Scene.getHit s 5 infinity r
+        return p, Scene.getHit s mr infinity r
     }
 
     let cs = rs |> Seq.map m

@@ -19,6 +19,8 @@ val make : Point -> Point -> Vector -> float -> float -> float -> int -> int -> 
 /// <summary>
 /// Render a scene to a Bitmap object.
 /// </summary>
+/// <param name=c>The camera.</param>
+/// <param name=mr>The number of times to reflect rays.</param>
 /// <param name=s>The scene to render.</param>
 /// <returns>The rendered bitmap of the scene.</returns>
-val render : c:Camera -> s:Scene -> Bitmap
+val render : c:Camera -> mr:int -> s:Scene -> Bitmap

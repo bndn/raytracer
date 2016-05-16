@@ -89,7 +89,7 @@ let mkScene ss ls al (c:Camera) (mr:int) = Scene.make ss (al :: ls), c, mr
 let renderToScreen (s, c, mr:int) =
     let p = new PictureBox()
     do p.SizeMode <- PictureBoxSizeMode.AutoSize
-    do p.Image    <- render c s
+    do p.Image    <- render c mr s
 
     let f = new Form()
     do f.AutoSize <- true
@@ -97,7 +97,7 @@ let renderToScreen (s, c, mr:int) =
 
     Application.Run(f)
 let renderToFile (s, c, mr:int) (f:string) =
-    let b : Bitmap = render c s in b.Save(f, ImageFormat.Png)
+    let b : Bitmap = render c mr s in b.Save(f, ImageFormat.Png)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Affine Transformations
