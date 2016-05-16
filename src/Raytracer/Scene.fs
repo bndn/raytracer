@@ -7,6 +7,9 @@ open Light
 [<NoComparison>]
 type Scene = Scene of Shape list * Light list
 
+[<Literal>]
+let GammaFactor = 2.
+
 /// <summary>
 /// Create a scene with a list of shapes and lights.
 /// </summary>
@@ -112,9 +115,9 @@ let getShadingColors s chp shp ls =
 /// <returns>A mixed color.</returns>
 let mixShadingColors c cs =
     let folder (r, g, b) (c', i, dp) =
-        let r' = Color.getR c'
-        let g' = Color.getG c'
-        let b' = Color.getB c'
+        let r' = Color.getR c' ** GammaFactor
+        let g' = Color.getG c' ** GammaFactor
+        let b' = Color.getB c' ** GammaFactor
 
         let f = dp * i
 
@@ -122,7 +125,11 @@ let mixShadingColors c cs =
 
     let (rf, gf, bf) = List.fold folder (0., 0., 0.) cs
 
-    (Color.getR c * rf, Color.getG c * gf, Color.getB c * bf)
+    let r = Color.getR c ** GammaFactor
+    let g = Color.getG c ** GammaFactor
+    let b = Color.getB c ** GammaFactor
+
+    (r * rf, g * gf, b * bf)
 
 /// <summary>
 /// Gets the color to shade and finds out which values to mix the color with.
@@ -161,15 +168,9 @@ let getColor s ls (r, hps) =
         // Get the color of the material that the ray hit.
         let mc = Material.getColor hm
 
-        let (r', g', b') = mixShadingColors mc cls
+        mixShadingColors mc cls
 
-        let r' = max 0. (min 1. r')
-        let g' = max 0. (min 1. g')
-        let b' = max 0. (min 1. b')
-
-        Color.make r' g' b'
-
-    | None -> Color.make 0. 0. 0.
+    | None -> 0., 0., 0.
 
 /// <summary>
 /// Given a ray, find the color of the thing it hits in the scene.
@@ -180,4 +181,5 @@ let getColor s ls (r, hps) =
 /// <param name=r>The ray shot into the scene.</param>
 /// <returns>The color of the thing that was hit.</returns>
 let getHit s (mr:int) (md:float) r =
-    getColor s (getLights s) (r, getHitpoints r md s)
+    let r, g, b = getColor s (getLights s) (r, getHitpoints r md s)
+    let u = 1. / GammaFactor in Color.make (r ** u) (g ** u) (b ** u)
