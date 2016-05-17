@@ -89,7 +89,7 @@ let mkAmbientLight c i = Light.make (Direction.Ambient) c i
 let mkScene ss ls al (c:Camera) (mr:int) = Scene.make ss (al :: ls), c, mr
 
 let renderToBitmap (s, c, mr) =
-    let (w, h, cs) = render c mr s
+    let w, h, cs = render c mr s
 
     let bm = new Bitmap(w, h)
 
@@ -99,7 +99,9 @@ let renderToBitmap (s, c, mr) =
         let b = Color.getB c * 255.
         let c = Color.FromArgb(int r, int g, int b)
 
-        do bm.SetPixel(w - x, y, c)
+        lock bm (fun () ->
+            do bm.SetPixel(w - x - 1, y, c)
+        )
 
     PSeq.iter i cs
 
