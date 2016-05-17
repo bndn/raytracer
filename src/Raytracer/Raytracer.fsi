@@ -157,7 +157,16 @@ val mkImplicit : e:string -> baseShape
 val mkPLY : f:string -> s:bool -> baseShape
 val mkHollowCylinder : c:point -> r:float -> h:float -> t:texture -> shape
 val mkSolidCylinder : c:point -> r:float -> h:float -> s:texture -> b:texture -> t:texture -> shape
+
+/// <summary>
+/// Construct a disc with a center point, a radius, and a texture.
+/// </summary>
+/// <param name=p>The center point of the disc.</param>
+/// <param name=r>The radius of the disc.</param>
+/// <param name=t>The texture of the disc.</param>
+/// <returns>The disc.</returns>
 val mkDisc : p:point -> r:float -> t:texture -> shape
+
 val mkBox : lo:point -> hi:point -> fr:texture -> ba:texture -> t:texture -> b:texture -> l:texture -> r:texture -> shape
 
 ////////////////////////////////////////////////////////////////////////////////

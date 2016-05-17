@@ -67,7 +67,7 @@ let mkImplicit (e:string) : baseShape = failwith "mkImplicit not implemented"
 let mkPLY (f:string) (s:bool) : baseShape = failwith "mkPLY not implemented"
 let mkHollowCylinder c r h t = Shape.mkHollowCylinder c r h t
 let mkSolidCylinder (c:point) (r:float) (h:float) (s:texture) (b:texture) (t:texture) : shape = failwith "mkSolidCylinder not implemented"
-let mkDisc (p:point) (r:float) (t:texture) : shape = failwith "mkDisc not implemented"
+let mkDisc p r t = Shape.mkDisc p r t
 let mkBox (lo:point) (hi:point) (fr:texture) (ba:texture) (t:texture) (b:texture) (l:texture) (r:texture) : shape = failwith "mkBox not implemented"
 
 ////////////////////////////////////////////////////////////////////////////////
