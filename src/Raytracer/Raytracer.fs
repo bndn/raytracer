@@ -74,7 +74,7 @@ let mkBox lo hi fr ba t b l r = Shape.mkBox lo hi fr ba t b l r
 // Constructive Solid Geometry
 ////////////////////////////////////////////////////////////////////////////////
 
-let group r s = Shape.mkUnion r s
+let group r s = Shape.mkGroup r s
 let union r s = Shape.mkUnion r s
 let intersection r s = Shape.mkIntersection r s
 let subtraction r s = Shape.mkSubtraction r s
