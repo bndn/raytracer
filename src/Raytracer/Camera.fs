@@ -17,7 +17,7 @@ exception InvalidCameraException
 /// </summary>
 /// <param name=p>The position of the camera.</param>
 /// <param name=l>The position of the lookat point.</param>
-/// <param name=u>The upvector of the camera.</param>
+/// <param name=u>The upvector of the camera, will be normalised.</param>
 /// <param name=z>The zoom of the camera (distance from camera to pixel grid).</param>
 /// <param name=uw>The unitwidth of the camera.</param>
 /// <param name=uh>The unitheight of the camera.</param>
@@ -26,6 +26,7 @@ exception InvalidCameraException
 /// <returns>The created camera.</returns>
 let make p l u z uw uh pw ph =
     if p = l then raise InvalidCameraException
+    let u = Vector.normalise u
     C(p, l, u, z, uw, uh, pw, ph)
 
 /// <summary>
