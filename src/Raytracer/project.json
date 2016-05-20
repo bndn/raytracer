@@ -32,8 +32,7 @@
         "FSharp.Dnx": {
             "type": "build",
             "version": "1.0.0-*"
-        },
-        "FSharp.Collections.ParallelSeq": "1.0.2"
+        }
     },
 
     "frameworks": {
