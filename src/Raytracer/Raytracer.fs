@@ -65,8 +65,17 @@ let mkTriangle a b c m = Shape.mkTriangle a b c m
 let mkPlane t = Shape.mkPlane (Point.make 0. 0. 0.) (Vector.make 0. 1. 0.) t
 let mkImplicit (e:string) : baseShape = failwith "mkImplicit not implemented"
 let mkPLY (f:string) (s:bool) : baseShape = failwith "mkPLY not implemented"
-let mkHollowCylinder c r h t = Shape.mkHollowCylinder c r h t
-let mkSolidCylinder (c:point) (r:float) (h:float) (s:texture) (b:texture) (t:texture) : shape = failwith "mkSolidCylinder not implemented"
+let mkHollowCylinder c r h t =
+    // cylinder in the internal API works with a p0 center at the bottom
+    // of the cylinder, but the PO expects a cylinde with a p0 center at the
+    // middle of the cylinder (with respect to the y-axis)
+    // we adjust midCenter to this point.
+    let midCenter = Point.move c (Vector.make 0. (-h/2.) 0.)
+    Shape.mkHollowCylinder midCenter r h t
+let mkSolidCylinder (c : point) (r : float) (h : float) (t : texture) (top : texture) (bottom : texture) : shape =
+    // see mkHollowCylinder
+    let midCenter = Point.move c (Vector.make 0. (-h/2.) 0.)
+    Shape.mkSolidCylinder midCenter r h t top bottom
 let mkDisc p r t = Shape.mkDisc p r t
 let mkBox lo hi fr ba t b l r = Shape.mkBox lo hi fr ba t b l r
 
