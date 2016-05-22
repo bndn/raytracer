@@ -3,7 +3,6 @@
 open System.Drawing
 open System.Drawing.Imaging
 open System.Windows.Forms
-open FSharp.Collections.ParallelSeq
 
 ////////////////////////////////////////////////////////////////////////////////
 // Core Libraries
@@ -102,17 +101,13 @@ let renderToBitmap (s, c, mr) =
 
     let bm = new Bitmap(w, h)
 
-    let i (x, y, c) =
+    for (x, y, c) in cs do
         let r = Color.getR c * 255.
         let g = Color.getG c * 255.
         let b = Color.getB c * 255.
         let c = Color.FromArgb(int r, int g, int b)
 
-        lock bm (fun () ->
-            do bm.SetPixel(w - x - 1, y, c)
-        )
-
-    PSeq.iter i cs
+        do bm.SetPixel(w - x - 1, y, c)
 
     bm
 
