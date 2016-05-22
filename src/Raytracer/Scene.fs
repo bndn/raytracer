@@ -25,7 +25,7 @@ let make ss ls =
     then invalidArg "ls" "Cannot be empty"
 
     let folder (ss, ts) s =
-        match Shape.getBounds s with
+        match Shape.bounds s with
         | Some b -> (ss, (s, b) :: ts)
         | None   -> (s :: ss, ts)
 
@@ -55,10 +55,10 @@ let getLights = function Scene(_, _, ls) -> ls
 let getClosestHitpoint = function
     | hp :: hps ->
         let folder (hpb, db) hp =
-            let d = Shape.getHitDistance hp
+            let d = Shape.hitDistance hp
             if d < db then (hp, d) else (hpb, db)
 
-        Some (List.fold folder (hp, Shape.getHitDistance hp) hps)
+        Some (List.fold folder (hp, Shape.hitDistance hp) hps)
     | _ -> None
 
 /// <summary>
@@ -70,13 +70,13 @@ let getClosestHitpoint = function
 /// <returns>The list of hit points.</returns>
 let getHitpoints r d (Scene(ss, ts, _)) =
     let folder d hps s =
-        let hits = Shape.hitFunction r s
+        let hits = Shape.hit r s
 
         match getClosestHitpoint hits with
         | Some(_, chd) -> if chd <= d then hits @ hps else hps
         | None -> hps
 
-    let traverser d es =
+    let traverser _ es =
         match List.fold (folder d) [] es with
         | []  -> None
         | hps -> Some hps
@@ -91,10 +91,10 @@ let getHitpoints r d (Scene(ss, ts, _)) =
 /// Given a shadowpoint and its lightvectors we find the color, intensity and
 /// dot product value for each light source.
 /// </summary>
-/// <param name=ss>The shapes in the scene.</param>
+/// <param name=s>The shapes in the scene.</param>
 /// <param name=chp>The point that was hit.</param>
 /// <param name=shp>The shadow origin point.</param>
-/// <param name=lvs>The light vectors for the given shadow origin point.</param>
+/// <param name=ls>The light vectors for the given shadow origin point.</param>
 /// <returns>A list of triples (one triple for each light source) containing values for color mixing.</returns>
 let getShadingColors s chp shp ls =
     let folder cls l =
@@ -110,7 +110,7 @@ let getShadingColors s chp shp ls =
             // Construct a ray from the shadow point in the direction of the light.
             let r = Ray.make shp v
 
-            let hn = Shape.getHitNormal chp
+            let hn = Shape.hitNormal chp
             let dp = max 0. (Vector.normalise v * hn)
 
             // Gets the magnitude of the light vector to use as maxDistance
@@ -171,16 +171,16 @@ let getColor s ls (r, hps) =
 
         // Get the direction of the hit normal.
         // OBS: The normalisation should occur in Shape, and should not be needed below. It is just a precaution.
-        let hnd = Vector.normalise (Shape.getHitNormal chp)
+        let hnd = Vector.normalise (Shape.hitNormal chp)
 
         // Get the point from which we should cast the shadow ray.
-        let shp = Point.move hp (0.0001 * hnd)
+        let shp = Point.move hp (Shape.Epsilon * hnd)
 
         // Get the colors that the pixel should be shaded by.
         let cls = getShadingColors s chp shp ls
 
         // Get the material that the ray hit.
-        let hm = Shape.getHitMaterial chp
+        let hm = Shape.hitMaterial chp
 
         // Get the color of the material that the ray hit.
         let mc = Material.getColor hm

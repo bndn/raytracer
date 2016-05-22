@@ -58,34 +58,34 @@ let mkMatTexture m = Texture.make (fun _ _ -> m)
 ////////////////////////////////////////////////////////////////////////////////
 
 let mkShape (s:baseShape) (t:texture) : shape = failwith "mkShape not implemented"
-let mkSphere p r t = Shape.mkSphere p r t
-let mkRectangle p w h t = Shape.mkRectangle p w h t
-let mkTriangle a b c m = Shape.mkTriangle a b c m
-let mkPlane t = Shape.mkPlane (Point.make 0. 0. 0.) (Vector.make 0. 1. 0.) t
+let mkSphere p r t = Sphere.make p r t
+let mkRectangle p w h t = Rectangle.make p w h t
+let mkTriangle a b c m = Triangle.make a b c (mkMatTexture m)
+let mkPlane t = Plane.make (Point.make 0. 0. 0.) (Vector.make 0. 0. 1.) t
 let mkImplicit (e:string) : baseShape = failwith "mkImplicit not implemented"
 let mkPLY (f:string) (s:bool) : baseShape = failwith "mkPLY not implemented"
 let mkHollowCylinder c r h t =
     // cylinder in the internal API works with a p0 center at the bottom
-    // of the cylinder, but the PO expects a cylinde with a p0 center at the
+    // of the cylinder, but the PO expects a cylinder with a p0 center at the
     // middle of the cylinder (with respect to the y-axis)
     // we adjust midCenter to this point.
     let midCenter = Point.move c (Vector.make 0. (-h/2.) 0.)
-    Shape.mkHollowCylinder midCenter r h t
+    Cylinder.makeHollow midCenter r h t
 let mkSolidCylinder (c : point) (r : float) (h : float) (t : texture) (top : texture) (bottom : texture) : shape =
     // see mkHollowCylinder
     let midCenter = Point.move c (Vector.make 0. (-h/2.) 0.)
-    Shape.mkSolidCylinder midCenter r h t top bottom
-let mkDisc p r t = Shape.mkDisc p r t
-let mkBox lo hi fr ba t b l r = Shape.mkBox lo hi fr ba t b l r
+    Cylinder.makeSolid midCenter r h t top bottom
+let mkDisc p r t = Disc.make p r t
+let mkBox lo hi fr ba t b l r = Box.make lo hi fr ba t b l r
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructive Solid Geometry
 ////////////////////////////////////////////////////////////////////////////////
 
-let group r s = Shape.mkGroup r s
-let union r s = Shape.mkUnion r s
-let intersection r s = Shape.mkIntersection r s
-let subtraction r s = Shape.mkSubtraction r s
+let group r s = Composite.make r s Composite.Group
+let union r s = Composite.make r s Composite.Union
+let intersection r s = Composite.make r s Composite.Intersection
+let subtraction r s = Composite.make r s Composite.Subtraction
 
 ////////////////////////////////////////////////////////////////////////////////
 // Rendering
@@ -143,5 +143,5 @@ let scale x y z = Transform.scale x y z
 let mirrorX = Transform.mirror X
 let mirrorY = Transform.mirror Y
 let mirrorZ = Transform.mirror Z
-let mergeTransformations ts = Transform.merge ts
-let transform (s:shape) (t:transformation) : shape = failwith "transform not implemented"
+let mergeTransformations ts = Transform.merge (List.rev ts)
+let transform (s:shape) (t:transformation) : shape = Shape.transform s t
