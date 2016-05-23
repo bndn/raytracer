@@ -167,7 +167,7 @@ val mkSolidCylinder : c:point -> r:float -> h:float -> s:texture -> b:texture ->
 /// <returns>The disc.</returns>
 val mkDisc : p:point -> r:float -> t:texture -> shape
 
-val mkBox : lo:point -> hi:point -> fr:texture -> ba:texture -> t:texture -> b:texture -> l:texture -> r:texture -> shape
+val mkBox : low : point -> high : point -> front : texture -> back : texture -> top : texture -> bottom : texture -> left : texture -> right : texture  -> shape
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructive Solid Geometry
