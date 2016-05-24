@@ -76,8 +76,8 @@ let getHitpoints r d (Scene(ss, ts, _)) =
         | Some(_, chd) -> if chd <= d then hits @ hps else hps
         | None -> hps
 
-    let traverser _ es =
-        match List.fold (folder d) [] es with
+    let traverser es =
+        match Array.fold (folder d) [] es with
         | []  -> None
         | hps -> Some hps
 
