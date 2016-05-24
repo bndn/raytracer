@@ -48,15 +48,14 @@ let render (C(p, q, u, z, w, h, x, y)) mr s =
     let W = w / float x
     let H = h / float y
 
-    x, y, seq {
-        for n in 0 .. x * y - 1 do
-            let a = n % x
-            let b = n / x
+    x, y, Array.Parallel.init (x * y) (fun n ->
+        let a = n % x
+        let b = n / x
 
-            let p' = Point.move p' (W * (float a + 0.5) * r)
-            let p' = Point.move p' (H * (float b + 0.5) * d)
+        let p' = Point.move p' (W * (float a + 0.5) * r)
+        let p' = Point.move p' (H * (float b + 0.5) * d)
 
-            let r = Ray.make p (Point.distance p p')
+        let r = Ray.make p (Point.distance p p')
 
-            yield a, b, Scene.getHit s mr infinity r
-    }
+        a, b, Scene.getHit s mr infinity r
+    )

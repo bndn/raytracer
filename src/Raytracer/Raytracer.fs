@@ -101,13 +101,14 @@ let renderToBitmap (s, c, mr) =
 
     let bm = new Bitmap(w, h)
 
-    for (x, y, c) in cs do
+    cs |> Array.Parallel.iter (fun (x, y, c) ->
         let r = Color.getR c * 255.
         let g = Color.getG c * 255.
         let b = Color.getB c * 255.
         let c = Color.FromArgb(int r, int g, int b)
 
         do bm.SetPixel(w - x - 1, y, c)
+    )
 
     bm
 
