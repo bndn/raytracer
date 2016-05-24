@@ -88,6 +88,29 @@ let getHitpoints r d (Scene(ss, ts, _)) =
     | None    -> hps
 
 /// <summary>
+/// Creates a point that is placed slightly outside the shape hit by a ray.
+/// </summary>
+/// <param name=r>The given ray.</param>
+/// <param name=hp>The hitpoint of the ray.</param>
+/// <param name=hd>The hit distance.</param>
+/// <returns>A Point placed slight outside the shape.</returns>
+let getRetracePoint r hp hd =
+    // Get the ray normalised vector.
+    let rv = Ray.getVector r
+
+    // Get the ray origin point
+    let ro = Ray.getOrigin r
+
+    // Get the point along the ray that we hit.
+    let p = Point.move ro (hd * rv)
+
+    // Get the direction of the hit normal.
+    let hnd = Shape.hitNormal hp
+
+    // Get the point from which we should retrace the ray.
+    Point.move p (Shape.Epsilon * hnd)
+
+/// <summary>
 /// Given a shadowpoint and its lightvectors we find the color, intensity and
 /// dot product value for each light source.
 /// </summary>
@@ -149,32 +172,105 @@ let mixShadingColors c cs =
     (r * rf, g * gf, b * bf)
 
 /// <summary>
+/// Takes a ray and a hitpoint and calculates the direction of the reflected ray.
+/// </summary>
+/// <param name=r>The ray that hits the shape.</param>
+/// <param name=hp>The hitpoint for the ray.</param>
+/// <returns>The direction vector for the reflected ray.</returns>
+let getReflectionDirection r hp =
+    // get the direction vector of the ray
+    let dv = Ray.getVector r
+    // get the normal of the hitpoint
+    let n = Shape.hitNormal hp
+    // get the new direction angle
+    let nd = 2. * dv * n
+    // get the new, reflected direction vector
+    Vector.normalise (dv - (nd * n))
+
+/// <summary>
+/// Shoots a given number of reflection rays and gets
+/// the color and reflection index for each hit.
+/// </summary>
+/// <param name=s>The scene.</param>
+/// <param name=i>Reflection counter.</param>
+/// <param name=cs>The list to which the reflection colors are added.</param>
+/// <param name=r>The current ray.</param>
+/// <param name=hp>The current hitpoint.</param>
+/// <param name=hd>The current hit distance.</param>
+/// <returns>A list of tuples containing each hitpoints
+/// color and reflection index.</returns>
+let rec getReflectionColors s ls (mr, i) cs r hp hd =
+    // Get the material of the ray origin
+    let om = Shape.hitMaterial hp
+    // Get the reflection index of the ray origin hp
+    let ri = Material.getReflect om
+
+    // Check if the reflection max has been passed
+    // or if the reflection index is 0.
+    if i <= 0 || ri <= 0. then cs else
+
+    // Get the direction of the reflection ray.
+    let d = getReflectionDirection r hp
+    // Get retrace point
+    let hp' = getRetracePoint r hp hd
+    // Create a ray from the retrace point
+    let r' = Ray.make hp' d
+    // Get the hits of the ray
+    let hps = getHitpoints r' infinity s
+
+    // Check if there are any hits
+    match getClosestHitpoint hps with
+    | None -> cs
+    | Some(chp, chd) ->
+        // Make a retrace point for the hp
+        let rp = getRetracePoint r' chp chd
+        // Get the shading colors for the new hp
+        let scs = getShadingColors s chp rp ls
+        // Get the material of the ray hit
+        let m = Shape.hitMaterial chp
+        // Get the color of the ray hit
+        let c = Material.getColor m
+        let mi = Material.getReflect m
+
+        let (rs, gs, bs) = mixShadingColors c scs
+
+        // Make the shaded color
+        let sc = Color.make rs gs bs
+
+        // make diminish factor
+        let df = float mr / float i
+        // scale the color with the diminish factor
+        let ssc = Color.scale sc df
+
+        getReflectionColors s ls (mr, i - 1) ((ssc, mi) :: cs) r' chp chd
+
+/// <summary>
+/// Merges colors for reflection.
+/// </summary>
+/// <param name=cs>A list of tuples containing color
+/// and reflection index.</param>
+/// <returns>A merged color.</returns>
+let mergeReflectionColors cs =
+    let c, _ = cs |> List.reduce (fun (c, _) (c', i') ->
+        Color.merge i' c c', 0.
+    )
+
+    Color.getR c, Color.getG c, Color.getB c
+
+/// <summary>
 /// Gets the color to shade and finds out which values to mix the color with.
 /// </summary>
-/// <param name=ss>A list of shapes in the scene.</param>
+/// <param name=s>A list of shapes in the scene.</param>
 /// <param name=ls>A list of lights in the scene.</param>
 /// <param name=r>A ray in the scene.</param>
 /// <param name=hps>A list of hitpoints for a ray in the scene.</param>
 /// <returns>A SolidBrush with the final mixed color.</returns>
-let getColor s ls (r, hps) =
+let getColor s ls (r, hps) mr =
     // Get the closest hitpoint and the distance to it.
     match getClosestHitpoint hps with
     | Some (chp, chd) ->
-        // Get the ray normalised vector.
-        let rv = Ray.getVector r
-
-        // Get the ray origin point
-        let ro = Ray.getOrigin r
-
-        // Get the point along the ray that we hit.
-        let hp = Point.move ro (chd * rv)
-
-        // Get the direction of the hit normal.
-        // OBS: The normalisation should occur in Shape, and should not be needed below. It is just a precaution.
-        let hnd = Vector.normalise (Shape.hitNormal chp)
-
         // Get the point from which we should cast the shadow ray.
-        let shp = Point.move hp (Shape.Epsilon * hnd)
+        let shp = getRetracePoint r chp chd
 
         // Get the colors that the pixel should be shaded by.
         let cls = getShadingColors s chp shp ls
@@ -185,7 +281,17 @@ let getColor s ls (r, hps) =
         // Get the color of the material that the ray hit.
         let mc = Material.getColor hm
 
-        mixShadingColors mc cls
+        // Get the reflection index of the material that the ray hit.
+        let ri = Material.getReflect hm
+
+        let r', g', b' = mixShadingColors mc cls
+
+        if ri <= 0. then r', g', b'
+        else
+            // Get a list of reflection colors and indexes
+            let rcls = getReflectionColors s ls (mr, mr) [mc,ri] r chp chd
+
+            mergeReflectionColors rcls
 
     | None -> 0., 0., 0.
 
@@ -198,5 +304,5 @@ let getColor s ls (r, hps) =
 /// <param name=r>The ray shot into the scene.</param>
 /// <returns>The color of the thing that was hit.</returns>
 let getHit s (mr:int) (md:float) r =
-    let r, g, b = getColor s (getLights s) (r, getHitpoints r md s)
+    let r, g, b = getColor s (getLights s) (r, getHitpoints r md s) mr
     let u = 1. / GammaFactor in Color.make (r ** u) (g ** u) (b ** u)
