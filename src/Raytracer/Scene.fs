@@ -286,10 +286,13 @@ let getColor s ls (r, hps) mr =
 
         let r', g', b' = mixShadingColors mc cls
 
+        // Create new color that is mixed with its shading colors.
+        let nc = Color.make r' g' b'
+
         if ri <= 0. then r', g', b'
         else
             // Get a list of reflection colors and indexes
-            let rcls = getReflectionColors s ls (mr, mr) [mc,ri] r chp chd
+            let rcls = getReflectionColors s ls (mr, mr) [nc,ri] r chp chd
 
             mergeReflectionColors rcls
 
