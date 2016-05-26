@@ -64,7 +64,7 @@ let mkSphere p r t = Sphere.make p r t
 let mkRectangle p w h t = Rectangle.make p w h t
 let mkTriangle a b c m = Triangle.make a b c (mkMatTexture m)
 let mkPlane t = Plane.make (Point.make 0. 0. 0.) (Vector.make 0. 0. 1.) t
-let mkImplicit (e:string) : baseShape = failwith "mkImplicit not implemented"
+let mkImplicit (e:string) : baseShape = Implicit.make e
 
 let mkPLY f s =
     let f = File.ReadAllText f

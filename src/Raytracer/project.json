@@ -30,6 +30,8 @@
         "Vector": "",
         "Transform": "",
         "Kdtree": "",
+        "Expression": "",
+        "Polynomial": "",
         "FSharp.Dnx": {
             "type": "build",
             "version": "1.0.0-*"
