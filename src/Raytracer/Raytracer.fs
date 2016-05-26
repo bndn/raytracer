@@ -1,5 +1,6 @@
-﻿module Raytracer
+module Raytracer
 
+open System.IO
 open System.Drawing
 open System.Drawing.Imaging
 open System.Windows.Forms
@@ -57,13 +58,18 @@ let mkMatTexture m = Texture.make (fun _ _ -> m)
 // Shapes
 ////////////////////////////////////////////////////////////////////////////////
 
-let mkShape (s:baseShape) (t:texture) : shape = failwith "mkShape not implemented"
+let mkShape (s:baseShape) (t:texture) = Shape.texturize s t
+
 let mkSphere p r t = Sphere.make p r t
 let mkRectangle p w h t = Rectangle.make p w h t
 let mkTriangle a b c m = Triangle.make a b c (mkMatTexture m)
 let mkPlane t = Plane.make (Point.make 0. 0. 0.) (Vector.make 0. 0. 1.) t
 let mkImplicit (e:string) : baseShape = failwith "mkImplicit not implemented"
-let mkPLY (f:string) (s:bool) : baseShape = failwith "mkPLY not implemented"
+
+let mkPLY f s =
+    let f = File.ReadAllText f
+    Mesh.make f s
+
 let mkHollowCylinder c r h t =
     // cylinder in the internal API works with a p0 center at the bottom
     // of the cylinder, but the PO expects a cylinder with a p0 center at the
