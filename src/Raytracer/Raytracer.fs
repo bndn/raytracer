@@ -107,7 +107,9 @@ let renderToBitmap (s, c, mr) =
         let b = Color.getB c * 255.
         let c = Color.FromArgb(int r, int g, int b)
 
-        do bm.SetPixel(w - x - 1, y, c)
+        lock bm (fun () ->
+            do bm.SetPixel(w - x - 1, y, c)
+        )
     )
 
     bm
