@@ -2,7 +2,7 @@
 
 > A semi-efficient raytracing back-end powered by caffeine and bad puns
 
-<img src=example.png width=167 align=right>
+<img src=example.png width=166 align=right>
 
 This raytracer was written at the [IT University of Copenhagen](https://itu.dk) as part of our second year project; software development in large team with international collaboration.
 
