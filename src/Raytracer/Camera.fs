@@ -39,7 +39,7 @@ let make p l u z uw uh pw ph =
 let render (C(p, q, u, z, w, h, x, y)) mr s =
     let l = Point.direction p q
     let r = Vector.normalise (Vector.crossProduct u l)
-    let d = Vector.normalise (Vector.crossProduct r l)
+    let d = -1. * u
 
     let p' = Point.move p (z * l)
     let p' = Point.move p' ((+h / 2.) * u)
