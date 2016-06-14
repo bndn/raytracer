@@ -2,6 +2,12 @@
 
 > A semi-efficient raytracing back-end powered by caffeine and bad puns
 
+<img src=example.png width=167 align=right>
+
+This raytracer was written at the [IT University of Copenhagen](https://itu.dk) as part of our second year project; software development in large team with international collaboration.
+
+The raytracer enables tracing of both primitive objects, implicitly defined mathematical surfaces, and complex triangle meshes. Both flat and smooth shading are supported in addition to variable-depth reflection. Rendering is accelerated through use of SAH-based k-d trees and data parallelization.
+
 ## Authors
 
 - Andreas Bjørn Hassing Nielsen  
